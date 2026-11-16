@@ -1,5 +1,5 @@
 // 볼파이톤 일기 — 오프라인용 서비스 워커
-const CACHE = 'snake-diary-v1';
+const CACHE = 'snake-diary-v2';
 const SHELL = ['./', './index.html', './manifest.json', './icon-180.png', './icon-192.png', './icon-512.png',
   './img/snake.png', './img/logo.png', './img/bowl.png', './img/thermo.png', './img/note.png'];
 

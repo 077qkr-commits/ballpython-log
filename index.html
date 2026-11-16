@@ -247,7 +247,65 @@ details[open] summary::after{transform:rotate(90deg)}
 .msg{border-radius:14px;padding:10px 12px;font-size:13.5px;margin-top:10px;background:#fbefd2}
 .sheet{position:fixed;inset:0;z-index:35;background:rgba(60,45,20,.35);display:none;align-items:flex-end;justify-content:center}
 .sheet.on{display:flex}
-.sheet .in{background:var(--card);width:100%;max-width:430px;border-radius:24px 24px 0 0;padding:20px 18px calc(20px + var(--safe-b))}
+.sheet .in{background:var(--card);width:100%;max-width:430px;border-radius:24px 24px 0 0;padding:20px 18px calc(20px + var(--safe-b));max-height:88vh;overflow-y:auto;overflow-x:clip;overscroll-behavior:contain}
+/* 여러 마리 */
+.h-row{display:flex;gap:8px;margin:28px 0 14px}
+.h-row .h-date{flex:1;min-width:0;margin:0;gap:10px}
+.h-pet{flex:0 1 auto;max-width:46%;min-width:0;display:flex;align-items:center;gap:6px;height:52px;padding:0 14px 0 16px;background:var(--white);border:1px solid var(--line);border-radius:999px;box-shadow:var(--shadow);font:inherit;font-size:16px;color:var(--ink);cursor:pointer}
+.h-pet b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.h-pet .ic{font-size:14px;color:var(--ink2);flex:none}
+img.own{object-fit:cover;border-radius:22px;border:3px solid #fffdf8;box-shadow:0 4px 14px rgba(190,150,80,.18);background:#fbefd2}
+.pf-top img.own{width:92px;height:92px;border-radius:50%}
+.alist{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.alist button{display:flex;align-items:center;gap:12px;width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:16px;background:#fffdf8;font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+.alist button[aria-current="true"]{background:var(--sel);border-color:var(--sel);color:var(--sel-ink)}
+.alist img{width:48px;height:48px;border-radius:50%;object-fit:cover;flex:none;background:#fbefd2}
+.alist span{min-width:0;flex:1}.alist b{display:block;font-size:15.5px}.alist small{display:block;font-size:12.5px;opacity:.8;word-break:keep-all}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chips button{height:34px;padding:0 14px;border-radius:999px;border:1px solid #f1e9d6;background:#fdfcf5;font:inherit;font-size:14px;color:var(--ink);cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--sel);border-color:var(--sel);color:var(--sel-ink)}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.encbox{border:1px solid var(--line);border-radius:16px;padding:10px 12px;margin-top:10px;background:#fffdf8}
+.encbox>b{font-size:14px;color:var(--title)}
+.enc-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:14px}
+.enc-h b{font-size:14px;color:var(--title);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* 사육장 랙 */
+.rack-wrap{position:relative;padding:4px 2px 0}
+.rack{display:flex;flex-direction:column-reverse;gap:10px}
+.rrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.blk{grid-column:span var(--s);min-width:0;position:relative}
+.blk.anim{animation:drop .62s cubic-bezier(.25,1.45,.5,1) both;animation-delay:var(--d)}
+.bin{height:98px;border-radius:16px;background:var(--c);border:2px solid var(--cb);box-shadow:0 5px 0 var(--cb);padding:22px 6px 6px;position:relative;cursor:pointer;transition:transform .15s;display:block;width:100%;font:inherit;color:var(--ink);text-align:left}
+.bin:active{transform:translateY(3px) scale(.97);box-shadow:0 2px 0 var(--cb)}
+.bin .lab{position:absolute;left:10px;right:24px;top:4px;font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#6f5840}
+.bin .lamp{position:absolute;right:8px;top:6px;width:9px;height:9px;border-radius:50%;background:#ffcf6b;box-shadow:0 0 0 3px rgba(255,207,107,.35),0 0 10px 3px rgba(255,190,80,.55);animation:glow 2.6s ease-in-out infinite}
+.bin .glass{height:100%;border-radius:11px;background:linear-gradient(160deg,rgba(255,255,255,.75),rgba(255,255,255,.4) 60%,rgba(255,255,255,.6));display:flex;align-items:flex-end;justify-content:center;gap:6px;padding:4px 4px 3px;overflow:hidden;position:relative}
+.bin .glass::after{content:"";position:absolute;left:0;right:0;bottom:0;height:9px;background:rgba(170,130,80,.18)}
+.ava{display:flex;flex-direction:column;align-items:center;min-width:0;z-index:1;animation:bob 2.8s ease-in-out infinite;animation-delay:var(--b)}
+.ava img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #fff;background:#fbefd2;box-shadow:0 2px 6px rgba(120,90,40,.18)}
+.ava small{font-size:10.5px;max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3}
+.ava img[src$="snake.png"],.alist img[src$="snake.png"],.homeless img[src$="snake.png"]{object-position:20% 50%}
+.ava.me img{border-color:#f3c64f;box-shadow:0 0 0 2px #f3c64f}
+.bin .empty-t{align-self:center;font-size:12px;color:#a8977d}
+.rack.edit .bin{animation:wig .32s ease-in-out infinite alternate}
+.rack.edit .rrow .blk:nth-child(2n) .bin{animation-delay:-.16s}
+.floor{height:12px;border-radius:6px;margin:8px -2px 0;background:linear-gradient(#ead5b1,#d6b98a);box-shadow:0 3px 0 #c9a873}
+.add-blk{display:flex;align-items:center;justify-content:center;gap:6px;height:44px;border:2px dashed #e3d2b0;border-radius:14px;background:transparent;color:var(--ink2);font:inherit;font-size:14px;cursor:pointer;width:100%;margin-top:12px}
+.homeless{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12.5px;color:var(--ink2)}
+.homeless button{border:1px dashed #e3d2b0;background:#fffdf8;border-radius:999px;padding:4px 10px 4px 4px;display:flex;align-items:center;gap:6px;font:inherit;font-size:13px;color:var(--ink);cursor:pointer}
+.homeless img{width:26px;height:26px;border-radius:50%;object-fit:cover}
+.pick{margin-top:12px;padding:12px;border-radius:16px;background:#fffdf8;border:1px solid var(--line);animation:pop .25s ease-out}
+.sw{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.sw button{width:38px;height:38px;border-radius:12px;border:2px solid var(--cb);background:var(--c);cursor:pointer;box-shadow:0 3px 0 var(--cb)}
+.sw button[aria-pressed="true"]{outline:3px solid var(--ink);outline-offset:2px}
+.prev-blk{margin:12px auto 4px;transition:width .3s cubic-bezier(.3,1.4,.5,1)}
+@keyframes drop{0%{transform:translateY(-160px);opacity:0}45%{opacity:1}100%{transform:none;opacity:1}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes glow{0%,100%{opacity:1}50%{opacity:.55}}
+@keyframes wig{from{transform:rotate(-1.2deg)}to{transform:rotate(1.2deg)}}
+@keyframes pop{from{transform:scale(.94);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.blk.anim,.ava,.bin .lamp,.rack.edit .bin,.pick{animation:none}}
+.linkbtn{border:0;background:none;color:var(--ink2);font:inherit;font-size:13px;text-decoration:underline;cursor:pointer;padding:4px 2px;flex:none}
 
 /* 하단 탭 */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;max-width:430px;margin:0 auto;background:#fffdf8;border-radius:26px 26px 0 0;
@@ -265,6 +323,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
   .h-logo h1{margin-top:8px;font-size:19px}
   .h-arc{top:120px}
   .h-date{margin:14px 0 10px;height:46px}
+  .h-row{margin:14px 0 10px}.h-pet{height:46px}
   .h-card{padding:12px 14px}
   .h-snake{width:200px;margin:0 auto 2px}
   .h-weight{margin-bottom:10px}
@@ -328,19 +387,22 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
 <section class="view on" id="v-home">
   <div class="h-logo">
     <div class="ring"><img src="img/logo.png" alt=""></div>
-    <h1>BALL PYTHON</h1>
+    <h1 id="hSpecies">BALL PYTHON</h1>
     <div class="tag">DAILY LOG</div>
   </div>
   <div class="h-arc"></div>
   <svg class="sp" style="right:26px;top:226px;width:22px;height:22px;color:#e6cf93"><use href="#u-spark"/></svg>
 
-  <label class="h-date"><svg class="ic"><use href="#u-cal"/></svg><span id="hDate"></span><svg class="ic cv"><use href="#u-chev"/></svg><input type="date" id="hDateIn" aria-label="날짜"></label>
+  <div class="h-row">
+    <button class="h-pet" id="petBtn" aria-label="개체 바꾸기"><b id="hPet"></b><svg class="ic"><use href="#u-chev"/></svg></button>
+    <label class="h-date"><svg class="ic"><use href="#u-cal"/></svg><span id="hDate"></span><svg class="ic cv"><use href="#u-chev"/></svg><input type="date" id="hDateIn" aria-label="날짜"></label>
+  </div>
 
   <div class="h-card">
     <svg class="sp" style="left:36px;top:58px;width:22px;height:22px"><use href="#u-spark"/></svg>
     <svg class="sp" style="left:22px;top:92px;width:12px;height:12px"><use href="#u-spark"/></svg>
     <svg class="sp" style="right:52px;top:36px;width:18px;height:18px"><use href="#u-spark"/></svg>
-    <img class="h-snake" src="img/snake.png" alt="">
+    <img class="h-snake pimg" src="img/snake.png" alt="">
     <div class="h-div">최근 체중</div>
     <button class="h-weight" id="hWeight" aria-label="체중 입력"></button>
     <div class="h-tiles">
@@ -360,7 +422,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
     <button class="circle r-calb" id="calBtn" aria-label="달력으로 보기"><svg class="ic"><use href="#u-cal"/></svg></button>
     <h2 id="rTitle">일일 기록</h2>
     <p id="rSub">오늘도 우리 뱀의<br>건강을 체크해요!</p>
-    <img class="r-snake" src="img/snake.png" alt="">
+    <img class="r-snake pimg" src="img/snake.png" alt="">
   </div>
 
   <div id="form" style="position:relative;z-index:2">
@@ -428,35 +490,32 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
 <section class="view" id="v-info">
   <div class="v-title">정보</div>
   <div class="box" id="profile">
-    <div class="pf-top"><img src="img/snake.png" alt=""><div><b id="pfName">우리 뱀</b><div class="hint" id="pfSub"></div></div></div>
+    <div class="pf-top"><img class="pimg" src="img/snake.png" alt=""><div style="min-width:0"><b id="pfName">우리 뱀</b><div class="hint" id="pfSub"></div></div></div>
     <div class="pf-stats" id="pfStats"></div>
-    <details><summary>프로필 고치기</summary>
-      <div class="g2"><div><label class="f" for="sName">이름</label><input class="inp" id="sName" placeholder="예: 놀지"></div><div><label class="f" for="sAdopt">데려온 날</label><input class="inp" type="date" id="sAdopt"></div></div>
-      <div class="g2"><div><label class="f" for="sMorph">모프</label><input class="inp" id="sMorph" placeholder="예: 바나나 아이보리"></div><div><label class="f" for="sSex">성별</label><select class="inp" id="sSex"><option value="">모름</option><option>수컷</option><option>암컷</option></select></div></div>
-      <div class="g2"><div><label class="f" for="sHatch">태어난 날 (알면)</label><input class="inp" type="date" id="sHatch"></div><div><label class="f" for="sFrom">분양처</label><input class="inp" id="sFrom" placeholder="예: ○○ 파충류샵"></div></div>
-      <div class="g2"><div><label class="f" for="sFeedMin">급여 간격 최소(일)</label><input class="inp" id="sFeedMin" inputmode="numeric" placeholder="7"></div><div><label class="f" for="sFeedMax">최대(일)</label><input class="inp" id="sFeedMax" inputmode="numeric" placeholder="10"></div></div>
+    <details id="pfEdit"><summary>프로필 고치기</summary>
+      <label class="f">사진</label>
+      <div class="g2"><label class="mini-btn" style="background:var(--white);border:1px solid var(--line)">사진 고르기<input type="file" id="aImgIn" accept="image/*" class="sr"></label><button class="mini-btn" id="aImgDel" style="background:var(--white);border:1px solid var(--line)">기본 그림으로</button></div>
+      <div class="g2"><div><label class="f" for="aName">이름</label><input class="inp" id="aName" placeholder="예: 놀지"></div><div><label class="f" for="aSpecies">종</label><select class="inp" id="aSpecies"></select></div></div>
+      <div class="g2"><div><label class="f" for="aMorph">모프</label><input class="inp" id="aMorph" placeholder="예: 바나나 아이보리"></div><div><label class="f" for="aSex">성별</label><select class="inp" id="aSex"><option value="">모름</option><option>수컷</option><option>암컷</option></select></div></div>
+      <div class="g2"><div><label class="f" for="aHatch">태어난 날 (알면)</label><input class="inp" type="date" id="aHatch"></div><div><label class="f" for="aAdopt">데려온 날</label><input class="inp" type="date" id="aAdopt"></div></div>
+      <div class="g2"><div><label class="f" for="aFrom">분양처</label><input class="inp" id="aFrom" placeholder="예: ○○ 파충류샵"></div><div><label class="f" for="aEncId">사육장</label><select class="inp" id="aEncId"></select></div></div>
+      <div class="g2"><div><label class="f" for="aFeedMin">급여 간격 최소(일)</label><input class="inp" id="aFeedMin" inputmode="numeric"></div><div><label class="f" for="aFeedMax">최대(일)</label><input class="inp" id="aFeedMax" inputmode="numeric"></div></div>
+      <label class="f">적정 범위 (비우면 종 기준값)</label>
+      <div class="g3"><div><label class="f" for="aHotLo">핫존 최저 ℃</label><input class="inp" id="aHotLo" inputmode="decimal"></div><div><label class="f" for="aCoolLo">쿨존 최저 ℃</label><input class="inp" id="aCoolLo" inputmode="decimal"></div><div><label class="f" for="aHumLo">습도 최저 %</label><input class="inp" id="aHumLo" inputmode="decimal"></div></div>
+      <div class="g3"><div><label class="f" for="aHotHi">핫존 최고 ℃</label><input class="inp" id="aHotHi" inputmode="decimal"></div><div><label class="f" for="aCoolHi">쿨존 최고 ℃</label><input class="inp" id="aCoolHi" inputmode="decimal"></div><div><label class="f" for="aHumHi">습도 최고 %</label><input class="inp" id="aHumHi" inputmode="decimal"></div></div>
       <p class="hint">입력하면 바로 저장돼요.</p>
+      <button class="linkbtn" id="aDel" style="color:#b53a2c">이 개체 지우기</button>
     </details>
   </div>
+  <div class="box" id="family">
+    <b style="color:var(--title)">우리 사육장</b>
+    <p class="hint" style="margin:4px 0 8px">온도·습도는 사육장마다 기록돼요. 같은 사육장 친구끼리 함께 써요.</p>
+    <div id="famList"></div>
+    <div class="g2" style="margin-top:12px"><button class="mini-btn" id="addAnimal"><svg class="ic"><use href="#u-plus"/></svg>개체 추가</button><button class="mini-btn" id="addEnc" style="background:var(--white);border:1px solid var(--line)">사육장 꾸미기</button></div>
+  </div>
   <div class="box" id="manual">
-    <details open><summary>적정 범위</summary>
-      <div class="kvs">
-        <div><b>핫존 바닥</b><span>31~33°C</span><small>허용 30~34°C</small></div>
-        <div><b>쿨존 공기</b><span>26~28°C</span><small>허용 24~29°C</small></div>
-        <div><b>밤 온도</b><span>24~26°C</span></div>
-        <div><b>습도</b><span>50~60%</span></div>
-        <div><b>탈피 전 습도</b><span>60~70%</span></div>
-      </div>
-    </details>
-    <details><summary>급여 주기</summary>
-      <div class="kvs">
-        <div><b>0~6개월</b><span>5~7일마다</span><small>퍼지·호퍼 생쥐</small></div>
-        <div><b>6~18개월</b><span>7~10일마다</span><small>성체 생쥐, 랫 위너, 병아리 1마리</small></div>
-        <div><b>18~36개월</b><span>10~14일마다</span><small>스몰 랫</small></div>
-        <div><b>36개월~</b><span>14~21일마다</span><small>미디엄 랫</small></div>
-      </div>
-      <p class="hint">먹이 무게는 체중의 10~15%예요.</p>
-    </details>
+    <details open><summary>적정 범위</summary><div class="kvs" id="mRange"></div><p class="hint" id="mRangeHint"></p></details>
+    <details><summary>급여 주기</summary><div class="kvs" id="mFeed"></div><p class="hint">먹이 무게는 체중의 10~15%예요. 개체 상태에 따라 수의사와 상의해 조절하세요.</p></details>
     <details><summary>먹이 해동·급여</summary>
       <ol class="steps">
         <li><b>해동</b><span>전날 밤 냉장실에서 8~12시간</span></li>
@@ -476,20 +535,22 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
       </div>
     </details>
     <details><summary>병원 연락처</summary>
-      <div class="kvs">
-        <div><b>현대동물병원</b><a href="tel:0332567582">033-256-7582</a></div>
-        <div><b>소망동물병원</b><a href="tel:0332516577">033-251-6577</a></div>
-        <div><b>품속동물병원</b><a href="tel:0332427559">033-242-7559</a></div>
-        <div><b>토리멀파크</b><a href="tel:01081415393">010-8141-5393</a></div>
-      </div>
-      <p class="hint">가기 전에 볼파이톤 진료가 되는지 전화로 확인하세요.</p>
+      <div class="kvs" id="mVets"></div>
+      <div class="g2" style="margin-top:8px"><input class="inp" id="vName" placeholder="병원 이름"><input class="inp" id="vTel" inputmode="tel" placeholder="전화번호"></div>
+      <button class="mini-btn" id="vAdd" style="margin-top:8px;width:100%">병원 추가</button>
+      <p class="hint">가기 전에 뱀 진료가 되는지 전화로 확인하세요.</p>
     </details>
+  </div>
+  <div class="box" id="backup">
+    <b style="color:var(--title)">백업</b>
+    <p class="hint" style="margin:4px 0 0">기록·사진을 파일 1개로 내려받아요. 폰을 바꿀 때 불러오면 돼요. 토큰은 빠져요.</p>
+    <div class="g2" style="margin-top:10px"><button class="mini-btn" id="bkOut">내보내기</button><label class="mini-btn" style="background:var(--white);border:1px solid var(--line)">불러오기<input type="file" id="bkIn" accept="application/json,.json" class="sr"></label></div>
   </div>
   <div class="box" id="settings">
     <b style="color:var(--title)">깃허브 연결</b>
-    <label class="f" for="sOwner">깃허브 아이디</label><input class="inp" id="sOwner" autocapitalize="off" placeholder="077qkr-commits">
+    <label class="f" for="sOwner">깃허브 아이디</label><input class="inp" id="sOwner" autocapitalize="off" placeholder="내 깃허브 아이디">
     <div class="g2">
-      <div><label class="f" for="sRepo">기록 저장소</label><input class="inp" id="sRepo" autocapitalize="off" placeholder="ballpython-diary"></div>
+      <div><label class="f" for="sRepo">기록 저장소</label><input class="inp" id="sRepo" autocapitalize="off" placeholder="snake-diary"></div>
       <div><label class="f" for="sBranch">브랜치</label><input class="inp" id="sBranch" autocapitalize="off" placeholder="main"></div>
     </div>
     <label class="f" for="sToken">토큰</label><input class="inp" id="sToken" type="password" autocapitalize="off" placeholder="github_pat_...">
@@ -519,9 +580,9 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
 <div class="sheet gsheet" id="gSheet"><div class="in">
   <div class="g-head"><b>그래프</b><button class="mini-btn" id="gX" style="height:34px;background:var(--white);border:1px solid var(--line)">닫기</button></div>
   <div class="g-seg"><button data-p="7" aria-pressed="true">7일</button><button data-p="30" aria-pressed="false">30일</button><button data-p="90" aria-pressed="false">90일</button></div>
-  <div class="g-card"><div class="t">핫존<small>음영 = 적정 31~33°C</small></div><div class="g-stats" id="gsHot"></div><div class="g-ch" id="gcHot"></div></div>
-  <div class="g-card"><div class="t">쿨존<small>음영 = 적정 26~28°C</small></div><div class="g-stats" id="gsCool"></div><div class="g-ch" id="gcCool"></div></div>
-  <div class="g-card"><div class="t">습도<small>음영 = 적정 50~60%</small></div><div class="g-stats" id="gsH"></div><div class="g-ch" id="gcH"></div></div>
+  <div class="g-card"><div class="t">핫존<small id="glHot"></small></div><div class="g-stats" id="gsHot"></div><div class="g-ch" id="gcHot"></div></div>
+  <div class="g-card"><div class="t">쿨존<small id="glCool"></small></div><div class="g-stats" id="gsCool"></div><div class="g-ch" id="gcCool"></div></div>
+  <div class="g-card"><div class="t">습도<small id="glH"></small></div><div class="g-stats" id="gsH"></div><div class="g-ch" id="gcH"></div></div>
   <div class="g-card" id="gWcard"><div class="t">체중<small>잰 날만 이어서 그려요</small></div><div class="g-stats" id="gsW"></div><div class="g-ch" id="gcW"></div></div>
 </div></div>
 <div class="lb" id="lb"><img id="lbImg" alt=""><span id="lbTx" style="text-align:center"></span><div class="row"><button class="mini-btn" id="lbEdit">날짜·메모 고치기</button><button class="mini-btn" id="lbDel" style="background:#fff;color:#b53a2c">빼기</button><button class="mini-btn" id="lbX" style="background:#fff">닫기</button></div></div>
@@ -535,6 +596,34 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
   </div>
   <label class="f" for="pCap">한 줄 메모</label><input class="inp" id="pCap" maxlength="40" placeholder="예: 첫 병아리 성공">
   <div class="g2" style="margin-top:14px"><button class="mini-btn" id="pOk">남기기</button><button class="mini-btn" id="pNo" style="background:var(--white);border:1px solid var(--line)">닫기</button></div>
+</div></div>
+<div class="sheet" id="aSheet"><div class="in">
+  <div class="g-head"><b style="color:var(--title)">우리 사육장</b><span style="display:flex;gap:6px"><button class="mini-btn" id="rEdit" style="height:34px;background:var(--white);border:1px solid var(--line)">꾸미기</button><button class="mini-btn" id="aX" style="height:34px;background:var(--white);border:1px solid var(--line)">닫기</button></span></div>
+  <p class="hint" id="rackHint" style="margin:0 0 8px">사육장을 누르면 그 안에 사는 친구의 기록을 써요.</p>
+  <div id="rackS"></div>
+  <div id="rackPick"></div>
+  <div class="g2" style="margin-top:14px"><button class="mini-btn" id="aBulk">여러 마리 한 번에 기록</button><button class="mini-btn" id="aAdd" style="background:var(--white);border:1px solid var(--line)"><svg class="ic"><use href="#u-plus"/></svg>개체 추가</button></div>
+</div></div>
+<div class="sheet" id="eSheet"><div class="in">
+  <div class="g-head"><b style="color:var(--title)" id="eTitle">사육장 꾸미기</b><button class="mini-btn" id="eX" style="height:34px;background:var(--white);border:1px solid var(--line)">닫기</button></div>
+  <div id="ePrev"></div>
+  <label class="f" for="eName">이름</label><input class="inp" id="eName" maxlength="20">
+  <label class="f">크기 <span class="hint">(1자 ≈ 30cm)</span></label><div class="chips" id="eSize"></div>
+  <label class="f">색</label><div class="sw" id="eColor"></div>
+  <label class="f">여기 사는 친구</label><div class="chips" id="eWho"></div>
+  <button class="mini-btn" id="eOk" style="margin-top:16px;width:100%;height:44px">저장하기</button>
+  <div class="g3" style="margin-top:8px" id="eMore"><button class="mini-btn" id="eUp" style="background:var(--white);border:1px solid var(--line)">위로</button><button class="mini-btn" id="eDown" style="background:var(--white);border:1px solid var(--line)">아래로</button><button class="mini-btn" id="eDel" style="background:var(--white);border:1px solid var(--line);color:#b53a2c">빼기</button></div>
+</div></div>
+<div class="sheet" id="bSheet"><div class="in">
+  <div class="g-head"><b style="color:var(--title)">여러 마리 한 번에 기록</b><button class="mini-btn" id="bX" style="height:34px;background:var(--white);border:1px solid var(--line)">닫기</button></div>
+  <label class="f" for="bDate">날짜</label><input class="inp" type="date" id="bDate">
+  <label class="f">기록할 개체</label><div class="chips" id="bAnimals"></div>
+  <label class="f">급여 여부</label><div class="tog" id="bFeed"></div>
+  <label class="f">배변 여부</label><div class="tog" id="bPoop"></div>
+  <label class="f" for="bNote">특이사항 (고른 개체 모두에)</label><input class="inp" id="bNote" placeholder="비우면 그대로 둬요">
+  <label class="f">사육장 온도 · 습도</label><div id="bEnv"></div>
+  <p class="hint" style="margin-top:8px">비워 둔 칸은 원래 기록을 그대로 둬요.</p>
+  <button class="mini-btn" id="bOk" style="margin-top:10px;width:100%;height:44px">한 번에 저장하기</button>
 </div></div>
 <div class="toast" id="toast"></div>
 
@@ -561,19 +650,71 @@ const nowHM = () => { const d = new Date(); return `${pad(d.getHours())}:${pad(d
 const num = v => { if(v===''||v==null) return null; const n = parseFloat(String(v).replace(',','.')); return isFinite(n) ? n : null; };
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+/* ---------- 종 기준 (참고용) ---------- */
+const SP = {
+  ball:  {ko:'볼파이톤', en:'BALL PYTHON', hot:[31,33], cool:[24,27], hum:[50,60], shed:'60~70%', feed:[['0~6개월','5~7일'],['6~18개월','7~10일'],['18~36개월','10~14일'],['36개월~','14~21일']], f:[7,10]},
+  corn:  {ko:'콘스네이크', en:'CORN SNAKE', hot:[32,35], cool:[24,27], hum:[40,60], feed:[['어린 개체','7일'],['성체','7~14일']], f:[7,7]},
+  hog:   {ko:'웨스턴 호그노즈', en:'HOGNOSE', hot:[32,35], cool:[21,24], hum:[30,50], feed:[['어린 개체','4~5일'],['성체','7~10일']], f:[4,5]},
+  king:  {ko:'캘리포니아 킹스네이크', en:'KINGSNAKE', hot:[31,33], cool:[22,24], hum:[40,60], feed:[['해츨링','7일'],['아성체','7~10일'],['성체','10~14일']], f:[7,7]},
+  boa:   {ko:'보아 (BCI)', en:'BOA', hot:[31,33], cool:[24,27], hum:[60,70], feed:[['0~18개월','7일'],['18개월~4살','14~21일'],['4살~','28~56일']], f:[7,7]},
+  carpet:{ko:'카펫 파이톤', en:'CARPET PYTHON', hot:[31,33], cool:[24,27], hum:[50,60], feed:[['어린 개체','7~14일'],['성체','14~28일']], f:[7,14]},
+  etc:   {ko:'기타 뱀', en:'SNAKE', hot:null, cool:null, hum:null, feed:[], f:[7,10]}
+};
+
 /* ---------- 데이터 ---------- */
-let S = Object.assign({owner:'077qkr-commits', repo:'ballpython-diary', branch:'main'}, LS.get('settings', {})), INDEX = LS.get('index2', {}), entry = null, homeDate = today();
-for(const k in INDEX){ const v = INDEX[k]; if(v.temp!=null && v.hot==null) v.hot = v.temp; }
+let S = Object.assign({owner:'', repo:'', branch:'main'}, LS.get('settings', {})), entry = null, homeDate = today();
+const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+(function migrate(){   // 한 마리 시절 기록 → 개체·사육장 구조로 옮기기
+  if(LS.get('animals', null)) return;
+  const enc = {id:'k1', name:'사육장 1'}, a = {id:'a1', encId:'k1', species:'ball'};
+  ['name','adopt','morph','sex','hatch','from','feedMin','feedMax'].forEach(k => { if(S[k]) a[k] = S[k]; });
+  const idx = LS.get('index2', null), env = {};
+  if(idx || S.name){ Object.assign(a, {hotLo:31, hotHi:33, coolLo:26, coolHi:28, humLo:50, humHi:60}); }
+  if(idx){ for(const d in idx){ const v = LS.get('e:'+d, null);
+      if(v){ if(v.temp!=null && v.hot==null) v.hot = v.temp; delete v.temp; LS.set('e:a1:'+d, v); LS.del('e:'+d); }
+      const x = v || idx[d]; if(x.hot!=null || x.cool!=null || x.hum!=null || x.temp!=null) env[d] = {hot:x.hot ?? x.temp ?? null, cool:x.cool ?? null, hum:x.hum ?? null}; }
+    LS.set('idx:a1', idx); LS.set('env:k1', env); LS.del('index2'); LS.del('dirty2'); }
+  ['name','adopt','morph','sex','hatch','from','feedMin','feedMax'].forEach(k => delete S[k]); LS.set('settings', S);
+  LS.set('encs', [enc]); LS.set('animals', [a]); LS.set('cur', 'a1');
+})();
+let ANI = LS.get('animals', []), ENC = LS.get('encs', []), CUR = LS.get('cur', ANI[0] && ANI[0].id);
+if(!ENC.length){ ENC = [{id:'k1', name:'사육장 1'}]; LS.set('encs', ENC); }
+const COLORS = [['크림','#fbefd2','#e8cf9a'],['민트','#d9eedf','#a9cfb4'],['하늘','#d8e8f3','#a4c3da'],['분홍','#f6dde0','#dcaab1'],['라벤더','#e6def3','#bfaedb'],['레몬','#f8e9a6','#dcc463'],['나무','#ead3ae','#c9a26c'],['회색','#e7e3dc','#bdb4a6']];
+ENC.forEach((e,i) => { if(!e.size) e.size = 2; if(!e.color) e.color = COLORS[i % COLORS.length][1]; });
+const cbOf = c => (COLORS.find(x => x[1]===c) || COLORS[0])[2];
+if(!ANI.length){ ANI = [{id:'a1', encId:ENC[0].id, species:'ball', name:''}]; LS.set('animals', ANI); }
+if(!ANI.find(a => a.id===CUR)) CUR = ANI[0].id;
+const A = id => ANI.find(a => a.id===(id||CUR)), P = () => A(CUR);
+const NOENC = {id:'none', name:'사육장 없음'};
+const encOf = a => ENC.find(e => e.id===a.encId) || NOENC;
+const saveAni = () => LS.set('animals', ANI), saveEnc = () => LS.set('encs', ENC);
+const spOf = a => SP[a.species] || SP.etc;
+const nm = a => (a && a.name) || '우리 뱀';
+function R3(a){ a = a || P(); const sp = spOf(a), g = (k, i) => { const v = num(a[k]); return v!=null ? v : (sp[k.slice(0,-2)] ? sp[k.slice(0,-2)][i] : null); };
+  return {hot:[g('hotLo',0), g('hotHi',1)], cool:[g('coolLo',0), g('coolHi',1)], hum:[g('humLo',0), g('humHi',1)]}; }
+const rg = r => r[0]!=null && r[1]!=null ? `${r[0]}~${r[1]}` : '';
+const ENVC = {};
+const envAll = encId => ENVC[encId] || (ENVC[encId] = LS.get('env:'+encId, {}));
+const envOf = (d, aid) => envAll(encOf(A(aid)).id)[d] || null;
+function setEnv(d, encId, v){ const E = envAll(encId);
+  if(v.hot==null && v.cool==null && v.hum==null) delete E[d]; else E[d] = {hot:v.hot ?? null, cool:v.cool ?? null, hum:v.hum ?? null};
+  LS.set('env:'+encId, E); }
+let INDEX = LS.get('idx:'+CUR, {});
+const idxOf = aid => aid===CUR ? INDEX : LS.get('idx:'+aid, {});
+const IX = (d, aid) => { const s = idxOf(aid||CUR)[d], e = envOf(d, aid); return s || e ? Object.assign({}, s || {}, e || {}) : undefined; };
 const photoCache = {};
 const blank = date => ({date, fed:null, feedDate:date, poop:null, poopDate:date, hot:null, cool:null, hum:null, shed:null, shedDate:date, note:'', weight:null, photos:[], caps:{}});
-const isEmpty = e => e.fed==null && e.poop==null && e.hot==null && e.cool==null && e.hum==null && e.shed==null && !e.note.trim() && e.weight==null && !e.photos.length;
-const summ = e => ({date:e.date, fed:e.fed, feedDate:e.feedDate, poop:e.poop, poopDate:e.poopDate, hot:e.hot, cool:e.cool, hum:e.hum, shed:e.shed, shedDate:e.shedDate, note:(e.note||'').slice(0,60), weight:e.weight, photos:e.photos.slice(0,30), caps:e.caps||{}});
-const legacy = v => { if(v && v.temp!=null && v.hot==null) v.hot = v.temp; if(v) delete v.temp; return v; };
-const getE = d => { const v = legacy(LS.get('e:'+d, null)); return v ? Object.assign(blank(d), v) : null; };
-function putE(e){
-  if(isEmpty(e)){ LS.del('e:'+e.date); delete INDEX[e.date]; }
-  else { LS.set('e:'+e.date, e); INDEX[e.date] = summ(e); const dt = LS.get('dirty2',{}); dt[e.date]=1; LS.set('dirty2', dt); }
-  LS.set('index2', INDEX);
+const isEmpty = e => e.fed==null && e.poop==null && e.shed==null && !e.note.trim() && e.weight==null && !e.photos.length;
+const summ = e => ({date:e.date, fed:e.fed, feedDate:e.feedDate, poop:e.poop, poopDate:e.poopDate, shed:e.shed, shedDate:e.shedDate, note:(e.note||'').slice(0,60), weight:e.weight, photos:e.photos.slice(0,30), caps:e.caps||{}});
+const ek = (d, aid) => `e:${aid||CUR}:${d}`;
+const getE = (d, aid) => { const v = LS.get(ek(d, aid), null), en = envOf(d, aid);
+  if(!v && !en) return null; const e = Object.assign(blank(d), v || {}); if(en) Object.assign(e, en); else Object.assign(e, {hot:null, cool:null, hum:null}); return e; };
+function putE(e, aid){ aid = aid || CUR;
+  setEnv(e.date, encOf(A(aid)).id, e);
+  const I = idxOf(aid);
+  if(isEmpty(e)){ LS.del(ek(e.date, aid)); delete I[e.date]; }
+  else { LS.set(ek(e.date, aid), e); I[e.date] = summ(e); }
+  LS.set('idx:'+aid, I);
 }
 function persist(){ putE(entry); $('#savedNote').textContent = '폰에 자동 저장됨 · ' + nowHM(); }
 
@@ -597,8 +738,8 @@ const GH = {
   }
 };
 const b64 = str => { const b = new TextEncoder().encode(str); let s=''; for(let i=0;i<b.length;i+=0x8000) s += String.fromCharCode.apply(null, b.subarray(i,i+0x8000)); return btoa(s); };
-function toMd(e){
-  const L = [`# ${e.date.slice(0,4)}년 ${kd(e.date)} · ${S.name||'우리 뱀'}`, ''];
+function toMd(e, a){
+  const L = [`# ${e.date.slice(0,4)}년 ${kd(e.date)} · ${nm(a)}`, ''];
   if(e.fed!=null) L.push(`- **급여 여부**: ${e.fed?'급여함':'미급여'}${e.fed?` (급여일 ${dot(e.feedDate)})`:''}`);
   if(e.poop!=null) L.push(`- **배변 여부**: ${e.poop?'있음':'없음'}${e.poop?` (배변일 ${dot(e.poopDate)})`:''}`);
   if(e.hot!=null) L.push(`- **핫존**: ${e.hot}℃`);
@@ -612,16 +753,17 @@ function toMd(e){
   L.push('', `<!-- data: ${JSON.stringify(e)} -->`, '');
   return L.join('\n');
 }
-async function upload(e){
+async function upload(e, aid){ aid = aid || CUR; const a = A(aid);
   const files = [], photos = [], caps = {}, st = nowHM().replace(':','');
   for(let i=0;i<e.photos.length;i++){ const p = e.photos[i];
-    if(p.startsWith('local:')){ const u = await IDB.get(p); if(!u) continue; const path = `photos/${e.date}/${st}-${i+1}.jpg`; files.push({path, b64:u.split(',')[1], local:p}); photos.push(path); photoCache[path] = u; if(e.caps && e.caps[p]!=null) caps[path] = e.caps[p]; }
+    if(p.startsWith('local:')){ const u = await IDB.get(p); if(!u) continue; const path = `photos/${aid}/${e.date}/${st}-${i+1}.jpg`; files.push({path, b64:u.split(',')[1], local:p}); photos.push(path); photoCache[path] = u; if(e.caps && e.caps[p]!=null) caps[path] = e.caps[p]; }
     else { photos.push(p); if(e.caps && e.caps[p]!=null) caps[p] = e.caps[p]; } }
   const out = {...e, photos, caps};
-  files.push({path:`logs/${e.date}.md`, b64:b64(toMd(out))});
-  let idx = {}; const t = await GH.raw('logs/index.json'); if(t) idx = JSON.parse(t);
-  idx[e.date] = summ(out); files.push({path:'logs/index.json', b64:b64(JSON.stringify(idx,null,1))});
-  await GH.commit(files, `${e.date} 기록`);
+  files.push({path:`logs/${aid}/${e.date}.md`, b64:b64(toMd(out, a))});
+  let idx = {}; const t = await GH.raw(`logs/${aid}/index.json`); if(t) idx = JSON.parse(t);
+  idx[e.date] = summ(out); files.push({path:`logs/${aid}/index.json`, b64:b64(JSON.stringify(idx,null,1))});
+  files.push({path:'animals.json', b64:b64(JSON.stringify({animals:ANI, enclosures:ENC},null,1))});
+  await GH.commit(files, `${e.date} ${nm(a)} 기록`);
   files.forEach(f => f.local && IDB.del(f.local));
   return {out, idx};
 }
@@ -635,7 +777,7 @@ function lastOf(pred, dateKey, upto){
 function feedInfo(upto){
   const last = lastOf(v => v.fed===true, 'feedDate', upto);
   if(!last) return {last:null, text:'급여 기록 없음', due:false};
-  const fmin = +S.feedMin || 7, fmax = +S.feedMax || 10, since = Math.round((parseD(upto)-parseD(last))/864e5);
+  const fmin = +P().feedMin || spOf(P()).f[0], fmax = Math.max(fmin, +P().feedMax || spOf(P()).f[1]), since = Math.round((parseD(upto)-parseD(last))/864e5);
   const a = addD(last, fmin), b = addD(last, fmax), toA = Math.round((parseD(a)-parseD(upto))/864e5);
   if(since===0) return {last, since, a, b, text:`다음 ${md(a)}~${md(b)}`, due:false};
   if(toA > 0) return {last, since, a, b, text:`다음 ${md(a)}~${md(b)} · D-${toA}`, due:false};
@@ -667,6 +809,7 @@ function renderHome(){
   $('#tPoop').innerHTML = `<i></i>${e && e.poop!=null ? (e.poop?'완료':'없음') : '—'}`;
   $('#tTemp').textContent = e && (e.hot!=null || e.cool!=null) ? `${e.hot ?? '—'}° / ${e.cool ?? '—'}°` : '—';
   $('#tHum').textContent = e && e.hum!=null ? `${e.hum}%` : '—';
+  $('#hPet').textContent = nm(P()); $('#hSpecies').textContent = spOf(P()).en;
 }
 
 /* ================= 기록 ================= */
@@ -677,7 +820,8 @@ function tog(el, a, b, val, set){
 }
 function renderForm(){
   $('#rDate').textContent = dotW(entry.date); $('#rDateIn').value = entry.date;
-  if(!calOn) $('#rSub').innerHTML = `오늘도 ${esc(S.name || '우리 뱀')}의<br>건강을 체크해요!`;
+  if(!calOn) $('#rSub').innerHTML = `오늘도 ${esc(nm(P()))}의<br>건강을 체크해요!`;
+  const r3 = R3(); $('#hot').placeholder = rg(r3.hot); $('#cool').placeholder = rg(r3.cool); $('#hum').placeholder = rg(r3.hum);
   tog($('#feedTog'), '급여함', '미급여', entry.fed, v => { entry.fed = v; renderForm(); persist(); });
   tog($('#poopTog'), '있음', '없음', entry.poop, v => { entry.poop = v; renderForm(); persist(); });
   tog($('#shedTog'), '눈 뿌옇게', '탈피 완료', entry.shed==='blue' ? true : entry.shed==='done' ? false : null,
@@ -692,7 +836,7 @@ function renderForm(){
 }
 async function openDate(d){
   entry = getE(d);
-  if(!entry && GH.ok() && INDEX[d]){ try{ const m = await GH.raw(`logs/${d}.md`); const x = m && m.match(/<!-- data: ([\s\S]*?) -->/); if(x) entry = Object.assign(blank(d), JSON.parse(x[1])); }catch(e){} }
+  if(!entry && GH.ok() && INDEX[d]){ try{ const m = await GH.raw(`logs/${CUR}/${d}.md`); const x = m && m.match(/<!-- data: ([\s\S]*?) -->/); if(x) entry = Object.assign(blank(d), JSON.parse(x[1])); }catch(e){} }
   if(!entry) entry = blank(d);
   renderForm(); $('#savedNote').textContent = '';
 }
@@ -700,8 +844,8 @@ async function save(){
   persist();
   if(!GH.ok()){ toast('저장했어요'); return; }
   const b = $('#save'); b.disabled = true; b.querySelector('span').textContent = '저장 중…';
-  try{ const {out, idx} = await upload(entry); entry = Object.assign(blank(out.date), out); LS.set('e:'+entry.date, entry); Object.assign(INDEX, idx); LS.set('index2', INDEX);
-    const dt = LS.get('dirty2',{}); delete dt[entry.date]; LS.set('dirty2', dt); toast('깃허브에 저장했어요'); $('#savedNote').textContent = '깃허브에 저장됨 · ' + nowHM(); }
+  try{ const {out} = await upload(entry); entry = Object.assign(blank(out.date), out); putE(entry);
+    toast('깃허브에 저장했어요'); $('#savedNote').textContent = '깃허브에 저장됨 · ' + nowHM(); }
   catch(e){ toast('폰에는 저장됐어요. 깃허브 실패: ' + e.message); }
   finally{ b.disabled = false; b.querySelector('span').textContent = '기록 저장하기'; }
 }
@@ -713,17 +857,17 @@ const LG = `<div class="lgd"><span><i class="d-feed"></i>급여</span><span><i c
 function setCal(on){
   calOn = on; $('#form').style.display = on ? 'none' : ''; $('#calView').style.display = on ? '' : 'none';
   $('#rTitle').textContent = on ? '기록 보기' : '일일 기록';
-  $('#rSub').innerHTML = on ? '월 · 주 · 일로<br>지난 기록을 봐요' : `오늘도 ${esc(S.name || '우리 뱀')}의<br>건강을 체크해요!`;
+  $('#rSub').innerHTML = on ? '월 · 주 · 일로<br>지난 기록을 봐요' : `오늘도 ${esc(nm(P()))}의<br>건강을 체크해요!`;
   if(on){ focus = entry ? entry.date : today(); renderCal(); }
   refit();
 }
 function setCV(v){ CV = v; $$('.seg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cv===v)); renderCal(); }
 const brief = s => [s.fed!=null ? `급여 ${s.fed?'함':'안 함'}` : '', s.shed ? (s.shed==='blue'?'눈 뿌옇게':'탈피 완료') : '', s.poop!=null ? `배변 ${s.poop?'있음':'없음'}` : '', (s.hot!=null||s.cool!=null) ? `핫 ${s.hot??'—'}° 쿨 ${s.cool??'—'}°` : '', s.hum!=null ? `${s.hum}%` : '', s.note ? `<span>${esc(s.note)}</span>` : ''].filter(Boolean).join(' · ');
-function dayBrief(d){ const s = INDEX[d];
+function dayBrief(d){ const s = IX(d);
   return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="font-size:15px">${kd(d)}</b>${s?`<button class="mini-btn" data-o="${d}" style="height:32px">자세히</button>`:''}</div>
     <div style="font-size:13.5px;margin-top:8px">${s ? brief(s) : '<span class="hint">기록이 없어요</span>'}</div>
     ${s?'':`<button class="mini-btn" data-w="${d}" style="margin-top:10px">이 날 기록하기</button>`}`; }
-function dayFull(d){ const e = getE(d) || (INDEX[d] ? Object.assign(blank(d), INDEX[d]) : null);
+function dayFull(d){ const e = getE(d) || (IX(d) ? Object.assign(blank(d), IX(d)) : null);
   if(!e) return `<div class="empty">기록이 없어요</div><div style="text-align:center"><button class="mini-btn" data-w="${d}">이 날 기록하기</button></div>`;
   return `<table class="t">
     <tr><th>급여 여부</th><td>${e.fed==null?'—':e.fed?`급여함 · ${dot(e.feedDate)}`:'미급여'}</td></tr>
@@ -740,7 +884,7 @@ function renderCal(){
   if(CV==='month'){
     const f = parseD(focus), y = f.getFullYear(), m = f.getMonth(), first = new Date(y,m,1), start = new Date(y,m,1-first.getDay()), last = new Date(y,m+1,0).getDate();
     let c = DOW.map(x => `<div class="dw">${x}</div>`).join('');
-    for(let i=0;i<Math.ceil((first.getDay()+last)/7)*7;i++){ const d = new Date(start); d.setDate(start.getDate()+i); const ds = ymd(d), s = INDEX[ds];
+    for(let i=0;i<Math.ceil((first.getDay()+last)/7)*7;i++){ const d = new Date(start); d.setDate(start.getDate()+i); const ds = ymd(d), s = IX(ds);
       c += `<button class="${s?'has':''} ${ds===t?'today':''} ${ds===focus?'sel':''} ${d.getMonth()!==m?'ot':''}" data-d="${ds}"><span>${d.getDate()}</span>${dots(s)}</button>`; }
     const days = []; for(let i=1;i<=last;i++) days.push(`${y}-${pad(m+1)}-${pad(i)}`);
     $('#calBody').innerHTML = `<div class="box"><div class="navh"><button data-n="-1" aria-label="이전 달">‹</button><b>${y}년 ${m+1}월</b><button data-n="1" aria-label="다음 달">›</button></div><div class="cal">${c}</div>${LG}</div>
@@ -752,7 +896,7 @@ function renderCal(){
   } else if(CV==='week'){
     const ws = addD(focus, -parseD(focus).getDay()), days = []; for(let i=0;i<7;i++) days.push(addD(ws,i));
     $('#calBody').innerHTML = `<div class="navh"><button data-n="-7" aria-label="이전 주">‹</button><b>${md(days[0])} – ${md(days[6])}</b><button data-n="7" aria-label="다음 주">›</button></div>
-      <div class="wk">${days.map(ds => { const s = INDEX[ds], d = parseD(ds);
+      <div class="wk">${days.map(ds => { const s = IX(ds), d = parseD(ds);
         return `<button class="wr ${s?'':'no'}" data-o="${ds}"><span class="d"><small>${DOW[d.getDay()]}</small><b>${d.getDate()}</b></span><span class="t">${s ? brief(s) : '<span>기록 없음</span>'}</span></button>`; }).join('')}</div>
       <div class="box" style="margin-top:13px"><b style="font-size:14px;color:var(--title)">온도 · 습도</b><div class="chart" id="ch"></div></div>`;
     $$('#calBody [data-n]').forEach(b => b.onclick = () => { focus = addD(focus, +b.dataset.n); renderCal(); });
@@ -767,7 +911,7 @@ function renderCal(){
 }
 function chart(days){
   const el = $('#ch'); if(!el) return;
-  const T = days.map(d => INDEX[d]?.cool ?? null), H = days.map(d => INDEX[d]?.hum ?? null);
+  const T = days.map(d => IX(d)?.cool ?? null), H = days.map(d => IX(d)?.hum ?? null);
   if(!T.some(v=>v!=null) && !H.some(v=>v!=null)){ el.innerHTML = '<div class="empty">이 기간에는 온도·습도 기록이 없어요</div>'; return; }
   const W = 340, Hh = 110, L = 26, R = 8, n = days.length, step = (W-L-R)/Math.max(1,n-1), x = i => L + i*step;
   const line = (vals, lo, hi, top, h, col) => { const y = v => top + (hi-v)*h/(hi-lo); let p='', on=false, c='';
@@ -787,19 +931,19 @@ function shrink(file){ return new Promise((res,rej) => { const url = URL.createO
   im.onload = () => { let w = im.width, h = im.height, M = 1400; if(Math.max(w,h)>M){ const s = M/Math.max(w,h); w=Math.round(w*s); h=Math.round(h*s); }
     const c = document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(im,0,0,w,h); URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg',.8)); };
   im.onerror = () => rej(new Error('사진을 읽지 못했어요')); im.src = url; }); }
-const dPlus = d => S.adopt ? Math.round((parseD(d) - parseD(S.adopt)) / 864e5) : null;
+const dPlus = d => P().adopt ? Math.round((parseD(d) - parseD(P().adopt)) / 864e5) : null;
 function renderTimeline(){
   // 데려온 날
-  $('#adopt').innerHTML = S.adopt
-    ? `<div class="tl-adopt"><span>데려온 날 <b>${dot(S.adopt)}</b> · 오늘 <b>D+${dPlus(today())}</b></span><label class="mini-btn" style="height:32px;background:var(--white);border:1px solid var(--line)">바꾸기<input type="date" id="adoptIn" value="${S.adopt}"></label></div>`
+  $('#adopt').innerHTML = P().adopt
+    ? `<div class="tl-adopt"><span>${esc(nm(P()))} 데려온 날 <b>${dot(P().adopt)}</b> · 오늘 <b>D+${dPlus(today())}</b></span><label class="mini-btn" style="height:32px;background:var(--white);border:1px solid var(--line)">바꾸기<input type="date" id="adoptIn" value="${P().adopt}"></label></div>`
     : `<div class="tl-adopt"><span>데려온 날을 정하면 사진마다 <b>D+며칠</b>인지 보여드려요</span><label class="mini-btn" style="height:32px">날짜 정하기<input type="date" id="adoptIn"></label></div>`;
-  $('#adoptIn').onchange = e => { if(e.target.value){ S.adopt = e.target.value; LS.set('settings', S); loadSettings(); renderTimeline(); } };
+  $('#adoptIn').onchange = e => { if(e.target.value){ P().adopt = e.target.value; saveAni(); loadSettings(); renderTimeline(); } };
   // 항목 모으기
   const items = [];
   Object.keys(INDEX).sort().reverse().forEach(d => { const e = getE(d) || Object.assign(blank(d), INDEX[d]);
     [...e.photos].reverse().forEach(p => items.push({d, p, cap:(e.caps||{})[p] || '', w: e.weight})); });
   const box = $('#timeline');
-  if(!items.length){ box.innerHTML = `<div class="box tl-empty"><img src="img/snake.png" alt="">아직 남긴 사진이 없어요.<br>오늘의 모습을 첫 장으로 남겨 보세요.<div style="margin-top:12px"><button class="mini-btn" id="firstMoment"><svg class="ic"><use href="#u-plus"/></svg>사진 남기기</button></div></div>`;
+  if(!items.length){ box.innerHTML = `<div class="box tl-empty"><img class="pimg" src="${PIMG.url || 'img/snake.png'}" alt="">아직 남긴 사진이 없어요.<br>오늘의 모습을 첫 장으로 남겨 보세요.<div style="margin-top:12px"><button class="mini-btn" id="firstMoment"><svg class="ic"><use href="#u-plus"/></svg>사진 남기기</button></div></div>`;
     $('#firstMoment').onclick = () => openPSheet(); return; }
   let html = '<div class="tl">', curM = '';
   items.forEach((it, i) => {
@@ -857,13 +1001,16 @@ let gPeriod = 7;
 function openGraph(){ $('#gSheet').classList.add('on'); drawGraphs(); }
 function drawGraphs(){
   const end = homeDate, days = []; for(let i=gPeriod-1;i>=0;i--) days.push(addD(end, -i));
-  const P = k => days.map(d => ({d, v: INDEX[d]?.[k] ?? null}));
-  const Ht = P('hot'), C = P('cool'), H = P('hum');
-  stats($('#gsHot'), Ht, 31, 33, '°'); stats($('#gsCool'), C, 26, 28, '°'); stats($('#gsH'), H, 50, 60, '%');
-  lineChart2($('#gcHot'), Ht, {lo:31, hi:33, min:27, max:36, unit:'°C', col:'#d9662b'});
-  lineChart2($('#gcCool'), C, {lo:26, hi:28, min:20, max:31, unit:'°C', col:'#e0a12c'});
-  lineChart2($('#gcH'), H, {lo:50, hi:60, min:30, max:100, unit:'%', col:'#5f95b8'});
-  const Wp = P('weight'), wv = Wp.map(p=>p.v).filter(v=>v!=null);
+  const PT = k => days.map(d => ({d, v: IX(d)?.[k] ?? null}));
+  const Ht = PT('hot'), C = PT('cool'), H = PT('hum');
+  const r = R3(), lab = (x, u) => x[0]!=null ? `음영 = 적정 ${rg(x)}${u}` : '적정 범위 없음 (프로필에서 넣을 수 있어요)';
+  $('#glHot').textContent = lab(r.hot, '°C'); $('#glCool').textContent = lab(r.cool, '°C'); $('#glH').textContent = lab(r.hum, '%');
+  stats($('#gsHot'), Ht, r.hot[0], r.hot[1], '°'); stats($('#gsCool'), C, r.cool[0], r.cool[1], '°'); stats($('#gsH'), H, r.hum[0], r.hum[1], '%');
+  const lim = (x, a, b) => x[0]!=null ? {lo:x[0], hi:x[1], min:Math.min(a, x[0]-3), max:Math.max(b, x[1]+3)} : {lo:null, hi:null, min:a, max:b};
+  lineChart2($('#gcHot'), Ht, {...lim(r.hot, 27, 36), unit:'°C', col:'#d9662b'});
+  lineChart2($('#gcCool'), C, {...lim(r.cool, 20, 31), unit:'°C', col:'#e0a12c'});
+  lineChart2($('#gcH'), H, {...lim(r.hum, 30, 100), unit:'%', col:'#5f95b8'});
+  const Wp = PT('weight'), wv = Wp.map(p=>p.v).filter(v=>v!=null);
   if(wv.length){ const f = wv[0], l = wv[wv.length-1];
     $('#gsW').innerHTML = `<div><span>처음</span><b>${f}g</b></div><div><span>지금</span><b>${l}g</b></div><div><span>변화</span><b>${l-f>=0?'+':''}${+(l-f).toFixed(1)}g</b></div><div><span>잰 횟수</span><b>${wv.length}번</b></div>`; }
   else $('#gsW').innerHTML = '';
@@ -873,8 +1020,8 @@ function drawGraphs(){
 function stats(el, pts, lo, hi, u){
   const v = pts.map(p=>p.v).filter(x=>x!=null);
   if(!v.length){ el.innerHTML = ''; return; }
-  const avg = (v.reduce((a,b)=>a+b,0)/v.length).toFixed(1), inR = Math.round(v.filter(x=>x>=lo&&x<=hi).length/v.length*100);
-  el.innerHTML = `<div><span>평균</span><b>${avg}${u}</b></div><div><span>최저</span><b>${Math.min(...v)}${u}</b></div><div><span>최고</span><b>${Math.max(...v)}${u}</b></div><div><span>적정 안</span><b>${inR}%</b></div>`;
+  const avg = (v.reduce((a,b)=>a+b,0)/v.length).toFixed(1), inR = lo!=null ? Math.round(v.filter(x=>x>=lo&&x<=hi).length/v.length*100) + '%' : '—';
+  el.innerHTML = `<div><span>평균</span><b>${avg}${u}</b></div><div><span>최저</span><b>${Math.min(...v)}${u}</b></div><div><span>최고</span><b>${Math.max(...v)}${u}</b></div><div><span>적정 안</span><b>${inR}</b></div>`;
 }
 function lineChart2(el, pts, o){
   const vals = pts.map(p=>p.v).filter(v=>v!=null);
@@ -952,22 +1099,244 @@ function go(id){
   window.scrollTo(0,0); refit();
 }
 function goLog(d, sec){ go('v-log'); setCal(false); openDate(d).then(() => { if(sec){ const el = document.getElementById('c-'+sec); el && window.scrollTo({top: el.getBoundingClientRect().top + scrollY - 20, behavior:'smooth'}); } }); }
-const SK = ['name','adopt','morph','sex','hatch','from','feedMin','feedMax','owner','repo','branch','token'];
-function loadSettings(){ SK.forEach(k => { const el = $('#s'+k[0].toUpperCase()+k.slice(1)); if(el) el.value = S[k] || ''; }); renderProfile(); }
+const AK = ['name','species','morph','sex','hatch','adopt','from','encId','feedMin','feedMax','hotLo','hotHi','coolLo','coolHi','humLo','humHi'];
+const aEl = k => $('#a'+k[0].toUpperCase()+k.slice(1));
+function loadSettings(){
+  ['owner','repo','branch','token'].forEach(k => { $('#s'+k[0].toUpperCase()+k.slice(1)).value = S[k] || ''; });
+  $('#aSpecies').innerHTML = Object.entries(SP).map(([k,v]) => `<option value="${k}">${v.ko}</option>`).join('');
+  $('#aEncId').innerHTML = ENC.map(e => `<option value="${e.id}">${esc(e.name)}</option>`).join('') + '<option value="none">사육장 없음</option>';
+  const a = P(), sp = spOf(a), r = {hot:sp.hot, cool:sp.cool, hum:sp.hum};
+  AK.forEach(k => { const el = aEl(k); if(el) el.value = a[k] ?? ''; });
+  $('#aSpecies').value = a.species || 'ball'; $('#aEncId').value = encOf(a).id;
+  $('#aFeedMin').placeholder = sp.f[0]; $('#aFeedMax').placeholder = sp.f[1];
+  ['hot','cool','hum'].forEach(k => { aEl(k+'Lo').placeholder = r[k] ? r[k][0] : ''; aEl(k+'Hi').placeholder = r[k] ? r[k][1] : ''; });
+  renderProfile();
+}
 function ageText(from, to){ const a = parseD(from), b = parseD(to); let m = (b.getFullYear()-a.getFullYear())*12 + b.getMonth()-a.getMonth(); if(b.getDate()<a.getDate()) m--; return m<0 ? '' : m<12 ? `${m}개월` : `${Math.floor(m/12)}살 ${m%12}개월`; }
 function renderProfile(){
-  const t = today();
-  $('#pfName').textContent = S.name || '우리 뱀';
-  $('#pfSub').textContent = [S.morph, S.sex, S.hatch ? ageText(S.hatch, t) : '', S.adopt ? `함께한 지 D+${dPlus(t)}` : '', S.from].filter(Boolean).join(' · ') || '프로필 고치기에서 정보를 넣어 주세요';
+  const t = today(), a = P();
+  $('#pfName').textContent = nm(a);
+  $('#pfSub').textContent = [spOf(a).ko, a.morph, a.sex, a.hatch ? ageText(a.hatch, t) : '', a.adopt ? `함께한 지 D+${dPlus(t)}` : '', encOf(a).name].filter(Boolean).join(' · ');
   const w = lastWeight(t), fi = feedInfo(t), si = shedInfo(t);
   $('#pfStats').innerHTML =
     `<div><span>체중</span><b>${w ? w.cur+'g' : '—'}</b><small>${w && w.prev!=null ? (w.cur-w.prev>=0?'+':'')+(+(w.cur-w.prev).toFixed(1))+'g' : '　'}</small></div>` +
     `<div><span>마지막 급여</span><b>${fi.last ? (fi.since===0 ? '오늘' : fi.since+'일 전') : '—'}</b><small>${fi.last ? md(fi.last) : '　'}</small></div>` +
     `<div><span>마지막 탈피</span><b>${si.blueNow ? '진행 중' : si.last ? Math.round((parseD(t)-parseD(si.last))/864e5)+'일 전' : '—'}</b><small>${si.avg ? `평균 ${si.avg}일 주기` : si.last ? md(si.last) : '　'}</small></div>`;
+  renderFamily(); renderManual();
 }
-function saveProfile(){ SK.forEach(k => { const el = $('#s'+k[0].toUpperCase()+k.slice(1)); if(el && $('#profile').contains(el)) S[k] = el.value.trim(); }); LS.set('settings', S); renderProfile(); }
-$$('#profile input, #profile select').forEach(el => el.addEventListener('change', saveProfile));
-$$('#profile input').forEach(el => el.addEventListener('input', saveProfile));
+function saveProfile(ev){
+  const a = P(), prevSp = a.species;
+  AK.forEach(k => { const el = aEl(k); if(el) a[k] = el.value.trim(); });
+  if(ev && ev.target.id==='aSpecies' && a.species !== prevSp){   // 종을 바꾸면 기준값을 그 종으로
+    ['feedMin','feedMax','hotLo','hotHi','coolLo','coolHi','humLo','humHi'].forEach(k => a[k] = '');
+    saveAni(); loadSettings(); toast(`${spOf(a).ko} 기준으로 바꿨어요`); return; }
+  saveAni(); renderProfile();
+}
+$$('#pfEdit input:not([type=file]), #pfEdit select').forEach(el => { el.addEventListener('change', saveProfile); if(el.tagName==='INPUT') el.addEventListener('input', saveProfile); });
+
+/* ---------- 매뉴얼 (종별) ---------- */
+function renderManual(){
+  const a = P(), sp = spOf(a), r = R3(a), custom = ['hotLo','hotHi','coolLo','coolHi','humLo','humHi'].some(k => num(a[k])!=null);
+  $('#mRange').innerHTML = [['핫존 바닥', r.hot, '°C'], ['쿨존', r.cool, '°C'], ['습도', r.hum, '%']].map(([k,x,u]) => `<div><b>${k}</b><span>${x[0]!=null ? rg(x)+u : '—'}</span></div>`).join('') + (sp.shed ? `<div><b>탈피 전 습도</b><span>${sp.shed}</span></div>` : '');
+  $('#mRangeHint').textContent = `${nm(a)} 기준${custom ? ' (직접 고친 값 포함)' : ` · ${sp.ko} 참고값`}. 사육 정보마다 수치가 조금씩 달라요. 개체 상태를 보고 조절하세요.`;
+  $('#mFeed').innerHTML = sp.feed.length ? sp.feed.map(([k,v]) => `<div><b>${k}</b><span>${v}마다</span></div>`).join('') : '<div><b>기준</b><span>프로필에서 급여 간격을 넣어 주세요</span></div>';
+  const V = LS.get('vets', []);
+  $('#mVets').innerHTML = V.length ? V.map((v,i) => `<div><b>${esc(v.n)}</b><span><a href="tel:${esc(v.t.replace(/[^0-9+]/g,''))}">${esc(v.t)}</a> <button class="linkbtn" data-vd="${i}">빼기</button></span></div>`).join('') : '<div><b>　</b><span class="hint">아직 넣은 병원이 없어요</span></div>';
+  $$('#mVets [data-vd]').forEach(b => b.onclick = () => { const V = LS.get('vets', []); V.splice(+b.dataset.vd, 1); LS.set('vets', V); renderManual(); });
+}
+$('#vAdd').onclick = () => { const n = $('#vName').value.trim(), t = $('#vTel').value.trim(); if(!n || !t){ toast('이름과 전화번호를 넣어 주세요'); return; }
+  const V = LS.get('vets', []); V.push({n, t}); LS.set('vets', V); $('#vName').value = $('#vTel').value = ''; renderManual(); };
+
+/* ---------- 개체 사진 ---------- */
+const PIMG = {url:null};
+async function applyImg(){
+  let u = null; try{ u = await IDB.get('img:'+CUR); }catch(e){}
+  PIMG.url = u || null;
+  $$('img.pimg').forEach(im => { im.src = u || 'img/snake.png'; im.classList.toggle('own', !!u); });
+  refit();
+}
+const imgOf = aid => IDB.get('img:'+aid).catch(() => null);
+$('#aImgIn').onchange = async ev => { const f = ev.target.files[0]; ev.target.value = ''; if(!f) return;
+  try{ const u = await shrinkTo(f, 640); await IDB.put('img:'+CUR, u); delete IMGC[CUR]; applyImg(); renderFamily(); toast('사진을 바꿨어요'); }catch(e){ toast('사진을 읽지 못했어요'); } };
+$('#aImgDel').onclick = async () => { await IDB.del('img:'+CUR).catch(()=>{}); delete IMGC[CUR]; applyImg(); renderFamily(); toast('기본 그림으로 바꿨어요'); };
+function shrinkTo(file, M){ return new Promise((res,rej) => { const url = URL.createObjectURL(file), im = new Image();
+  im.onload = () => { let w = im.width, h = im.height; if(Math.max(w,h)>M){ const s = M/Math.max(w,h); w=Math.round(w*s); h=Math.round(h*s); }
+    const c = document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(im,0,0,w,h); URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg',.85)); };
+  im.onerror = () => rej(new Error('x')); im.src = url; }); }
+
+/* ---------- 개체 바꾸기 · 추가 ---------- */
+function switchAnimal(id){
+  CUR = id; LS.set('cur', id); INDEX = LS.get('idx:'+id, {}); entry = null;
+  loadSettings(); applyImg();
+  const v = $('section.view.on').id;
+  openDate(v==='v-log' && !calOn ? homeDate : homeDate).then(() => { if(v==='v-home') renderHome(); if(v==='v-gallery') renderTimeline(); if(v==='v-log' && calOn) renderCal(); refit(); });
+}
+function addAnimal(){
+  const a = {id:uid('a'), name:'', species:'ball', encId:encOf(P()).id};
+  ANI.push(a); saveAni(); $('#aSheet').classList.remove('on'); switchAnimal(a.id); go('v-info');
+  $('#pfEdit').open = true; setTimeout(() => { $('#aName').focus(); }, 80); toast('새 개체를 만들었어요. 이름부터 넣어 주세요');
+}
+/* ---------- 사육장 블록 쌓기 ---------- */
+let rackEdit = false, dropNew = null, dropAll = false;
+const IMGC = {};
+async function avaOf(id){ if(!(id in IMGC)) IMGC[id] = await imgOf(id); return IMGC[id] || 'img/snake.png'; }
+function rows(){ const out = []; let row = [], w = 0;   // 4자 한 칸에 왼쪽부터, 아래에서 위로
+  ENC.forEach(e => { const sz = Math.min(4, Math.max(1, +e.size || 2)); if(w + sz > 4){ out.push(row); row = []; w = 0; } row.push(e); w += sz; });
+  if(row.length) out.push(row); return out; }
+async function renderRack(el, opt){
+  if(!el) return; opt = opt || {};
+  const live = ANI.filter(a => encOf(a).id!=='none');
+  let i = 0, h = `<div class="rack-wrap"><div class="rack${opt.edit ? ' edit' : ''}">`;
+  for(const row of rows()){ h += '<div class="rrow">';
+    for(const e of row){ const who = ANI.filter(a => encOf(a).id===e.id), sz = Math.min(4, Math.max(1, +e.size || 2));
+      const anim = opt.anim==='all' || opt.anim===e.id;
+      let inner = '';
+      for(const [j,a] of who.slice(0, sz*2).entries()) inner += `<span class="ava${a.id===CUR?' me':''}" style="--b:${(j*.37).toFixed(2)}s"><img data-ava="${a.id}" src="img/snake.png" alt="">${sz>1 ? `<small>${esc(nm(a))}</small>` : ''}</span>`;
+      if(who.length > sz*2) inner += `<span class="empty-t">+${who.length - sz*2}</span>`;
+      if(!who.length) inner = `<span class="empty-t">${sz>1 ? '비어 있어요' : '빈 곳'}</span>`;
+      h += `<div class="blk${anim?' anim':''}" style="--s:${sz};--d:${(anim && opt.anim==='all' ? i*.07 : 0).toFixed(2)}s"><button class="bin" data-enc="${e.id}" style="--c:${e.color};--cb:${cbOf(e.color)}" aria-label="${esc(e.name)}, ${sz}자, ${who.map(nm).join(', ') || '비어 있음'}">
+        <span class="lab">${esc(e.name)} · ${sz}자</span><span class="lamp"></span><span class="glass">${inner}</span></button></div>`; i++; }
+    h += '</div>'; }
+  h += '</div><div class="floor"></div></div>';
+  const homeless = ANI.filter(a => encOf(a).id==='none');
+  if(homeless.length) h += `<div class="homeless">사육장 없는 친구${homeless.map(a => `<button data-hl="${a.id}"><img data-ava="${a.id}" src="img/snake.png" alt="">${esc(nm(a))}</button>`).join('')}</div>`;
+  if(opt.edit) h += `<button class="add-blk" data-addenc><svg class="ic"><use href="#u-plus"/></svg>사육장 쌓기</button>`;
+  el.innerHTML = h;
+  el.querySelectorAll('[data-ava]').forEach(im => avaOf(im.dataset.ava).then(u => { im.src = u; }));
+  el.querySelectorAll('.bin').forEach(b => b.onclick = () => tapEnc(b.dataset.enc, opt));
+  el.querySelectorAll('[data-hl]').forEach(b => b.onclick = () => openAnimal(b.dataset.hl));
+  const ad = el.querySelector('[data-addenc]'); if(ad) ad.onclick = () => openEnc(null);
+}
+function openAnimal(id){ $('#aSheet').classList.remove('on'); if(id!==CUR) switchAnimal(id); goLog(homeDate); toast(`${nm(A(id))} 기록을 써요`); }
+function tapEnc(id, opt){
+  if(opt.edit){ openEnc(id); return; }
+  const who = ANI.filter(a => encOf(a).id===id), pick = opt.pick ? $(opt.pick) : null;
+  if(!who.length){ openEnc(id); return; }
+  if(who.length===1){ openAnimal(who[0].id); return; }
+  const box = pick || $('#rackPick');
+  if(!pick){ $('#aSheet').classList.add('on'); }
+  box.innerHTML = `<div class="pick"><b style="font-size:14px;color:var(--title)">${esc(ENC.find(e => e.id===id).name)} · 누구 기록을 쓸까요?</b><div class="alist">${who.map(a => `<button data-pk="${a.id}" aria-current="${a.id===CUR}"><img data-ava="${a.id}" src="img/snake.png" alt=""><span><b>${esc(nm(a))}</b><small>${esc([spOf(a).ko, a.morph].filter(Boolean).join(' · '))}</small></span></button>`).join('')}</div></div>`;
+  box.querySelectorAll('[data-ava]').forEach(im => avaOf(im.dataset.ava).then(u => { im.src = u; }));
+  box.querySelectorAll('[data-pk]').forEach(b => b.onclick = () => { box.innerHTML = ''; openAnimal(b.dataset.pk); });
+  box.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+function openRack(){ rackEdit = false; $('#rEdit').textContent = '꾸미기'; $('#rackHint').textContent = '사육장을 누르면 그 안에 사는 친구의 기록을 써요.'; $('#rackPick').innerHTML = '';
+  $('#aSheet').classList.add('on'); renderRack($('#rackS'), {anim:'all'}); }
+$('#rEdit').onclick = () => { rackEdit = !rackEdit; $('#rEdit').textContent = rackEdit ? '다 했어요' : '꾸미기'; $('#rackPick').innerHTML = '';
+  $('#rackHint').textContent = rackEdit ? '사육장을 눌러 크기·색·사는 친구를 바꿔요.' : '사육장을 누르면 그 안에 사는 친구의 기록을 써요.';
+  renderRack($('#rackS'), {edit:rackEdit}); };
+function renderFamily(){ renderRack($('#famList'), {pick:'#famPick'}); if(!$('#famPick')) $('#famList').insertAdjacentHTML('afterend', '<div id="famPick"></div>'); }
+function refreshRacks(anim){ IMGC[CUR] = undefined; delete IMGC[CUR];
+  if($('#aSheet').classList.contains('on')) renderRack($('#rackS'), {edit:rackEdit, anim}); renderFamily(); loadSettingsSoft(); }
+function loadSettingsSoft(){ $('#aEncId').innerHTML = ENC.map(e => `<option value="${e.id}">${esc(e.name)}</option>`).join('') + '<option value="none">사육장 없음</option>'; $('#aEncId').value = encOf(P()).id; }
+
+/* 사육장 꾸미기 시트 */
+const ED = {id:null, size:2, color:COLORS[0][1], who:new Set()};
+function openEnc(id){
+  const e = id ? ENC.find(x => x.id===id) : null;
+  ED.id = id; ED.size = e ? (+e.size || 2) : 2; ED.color = e ? e.color : COLORS[ENC.length % COLORS.length][1];
+  ED.who = new Set(ANI.filter(a => e && encOf(a).id===e.id).map(a => a.id));
+  $('#eTitle').textContent = e ? '사육장 꾸미기' : '새 사육장 쌓기';
+  $('#eName').value = e ? e.name : `사육장 ${ENC.length+1}`;
+  $('#eMore').style.display = e ? '' : 'none';
+  renderEd(); $('#eSheet').classList.add('on');
+}
+function renderEd(){
+  $('#ePrev').innerHTML = `<div class="prev-blk" style="width:${ED.size*25}%"><div class="bin" style="--c:${ED.color};--cb:${cbOf(ED.color)};cursor:default"><span class="lab">${esc($('#eName').value || '사육장')} · ${ED.size}자</span><span class="lamp"></span><span class="glass">${[...ED.who].map((id,j) => `<span class="ava" style="--b:${j*.37}s"><img data-ava="${id}" src="img/snake.png" alt="">${ED.size>1?`<small>${esc(nm(A(id)))}</small>`:''}</span>`).join('') || '<span class="empty-t">비어 있어요</span>'}</span></div></div>`;
+  $$('#ePrev [data-ava]').forEach(im => avaOf(im.dataset.ava).then(u => { im.src = u; }));
+  $('#eSize').innerHTML = [1,2,3,4].map(n => `<button data-sz="${n}" aria-pressed="${ED.size===n}">${n}자 · ${n*30}cm</button>`).join('');
+  $$('#eSize button').forEach(b => b.onclick = () => { ED.size = +b.dataset.sz; renderEd(); });
+  $('#eColor').innerHTML = COLORS.map(([n,c,cb]) => `<button data-c="${c}" aria-label="${n}" aria-pressed="${ED.color===c}" style="--c:${c};--cb:${cb}"></button>`).join('');
+  $$('#eColor button').forEach(b => b.onclick = () => { ED.color = b.dataset.c; renderEd(); });
+  $('#eWho').innerHTML = ANI.map(a => { const here = encOf(a), other = here.id!=='none' && here.id!==ED.id;
+    return `<button data-w="${a.id}" aria-pressed="${ED.who.has(a.id)}">${esc(nm(a))}${other && !ED.who.has(a.id) ? ` <small style="opacity:.6">· ${esc(here.name)}</small>` : ''}</button>`; }).join('');
+  $$('#eWho button').forEach(b => b.onclick = () => { const id = b.dataset.w; ED.who.has(id) ? ED.who.delete(id) : ED.who.add(id); renderEd(); });
+}
+$('#eName').oninput = () => { const l = $('#ePrev .lab'); if(l) l.textContent = `${$('#eName').value || '사육장'} · ${ED.size}자`; };
+$('#eX').onclick = () => $('#eSheet').classList.remove('on');
+$('#eOk').onclick = () => {
+  const name = $('#eName').value.trim() || `사육장 ${ENC.length+1}`; let e = ED.id ? ENC.find(x => x.id===ED.id) : null, isNew = !e;
+  if(!e){ e = {id:uid('k')}; ENC.push(e); }
+  Object.assign(e, {name, size:ED.size, color:ED.color});
+  ANI.forEach(a => { if(ED.who.has(a.id)) a.encId = e.id; else if(a.encId===e.id) a.encId = 'none'; });
+  saveEnc(); saveAni(); $('#eSheet').classList.remove('on');
+  refreshRacks(isNew ? e.id : null); renderHome(); toast(isNew ? '사육장을 쌓았어요' : '사육장을 바꿨어요');
+};
+const moveEnc = d => { const i = ENC.findIndex(x => x.id===ED.id), j = i + d; if(i<0 || j<0 || j>=ENC.length) return; [ENC[i], ENC[j]] = [ENC[j], ENC[i]]; saveEnc(); $('#eSheet').classList.remove('on'); refreshRacks(ED.id); };
+$('#eUp').onclick = () => moveEnc(1); $('#eDown').onclick = () => moveEnc(-1);
+$('#eDel').onclick = () => { const e = ENC.find(x => x.id===ED.id); if(!e) return;
+  const n = ANI.filter(a => a.encId===e.id).length;
+  if(!confirm(n ? `${e.name}을(를) 뺄까요? 사는 친구 ${n}마리는 '사육장 없음'이 돼요. 이 사육장의 온도·습도 기록은 지워져요.` : `${e.name}을(를) 뺄까요?`)) return;
+  ANI.forEach(a => { if(a.encId===e.id) a.encId = 'none'; }); ENC = ENC.filter(x => x.id!==e.id); LS.del('env:'+e.id);
+  saveEnc(); saveAni(); $('#eSheet').classList.remove('on'); refreshRacks(); renderHome(); toast('사육장을 뺐어요'); };
+$('#addAnimal').onclick = addAnimal; $('#aAdd').onclick = addAnimal;
+$('#addEnc').onclick = () => { openRack(); $('#rEdit').click(); };
+$('#aDel').onclick = async () => {
+  if(ANI.length<2){ toast('개체가 1마리일 때는 지울 수 없어요'); return; }
+  if(!confirm(`${nm(P())}의 기록을 모두 지울까요? 되돌릴 수 없어요.`)) return;
+  const id = CUR, I = LS.get('idx:'+id, {});
+  for(const d in I){ const e = LS.get(ek(d, id), null); if(e) e.photos.forEach(p => p.startsWith('local:') && IDB.del(p).catch(()=>{})); LS.del(ek(d, id)); }
+  Object.keys(localStorage).filter(k => k.startsWith(`e:${id}:`)).forEach(k => LS.del(k));
+  LS.del('idx:'+id); IDB.del('img:'+id).catch(()=>{});
+  ANI = ANI.filter(a => a.id!==id); saveAni(); $('#pfEdit').open = false; switchAnimal(ANI[0].id); toast('지웠어요');
+};
+$('#petBtn').onclick = openRack;
+$('#aX').onclick = () => $('#aSheet').classList.remove('on');
+
+/* ---------- 여러 마리 한 번에 ---------- */
+const B = {fed:null, poop:null, sel:new Set()};
+function renderBulk(){
+  $('#bAnimals').innerHTML = ANI.map(a => `<button data-b="${a.id}" aria-pressed="${B.sel.has(a.id)}">${esc(nm(a))}</button>`).join('');
+  $$('#bAnimals button').forEach(b => b.onclick = () => { const id = b.dataset.b; B.sel.has(id) ? B.sel.delete(id) : B.sel.add(id); renderBulk(); });
+  tog($('#bFeed'), '급여함', '미급여', B.fed, v => { B.fed = v; renderBulk(); });
+  tog($('#bPoop'), '있음', '없음', B.poop, v => { B.poop = v; renderBulk(); });
+}
+function openBulk(){
+  B.fed = null; B.poop = null; B.sel = new Set(ANI.map(a => a.id));
+  $('#bDate').value = homeDate; $('#bNote').value = '';
+  const d = homeDate;
+  $('#bEnv').innerHTML = ENC.filter(e => ANI.some(a => encOf(a).id===e.id)).map(e => { const v = envAll(e.id)[d] || {};
+    return `<div class="encbox"><b>${esc(e.name)}</b><div class="g3"><div><label class="f">핫존 ℃</label><input class="inp" inputmode="decimal" data-k="hot" data-e="${e.id}" value="${v.hot ?? ''}"></div><div><label class="f">쿨존 ℃</label><input class="inp" inputmode="decimal" data-k="cool" data-e="${e.id}" value="${v.cool ?? ''}"></div><div><label class="f">습도 %</label><input class="inp" inputmode="decimal" data-k="hum" data-e="${e.id}" value="${v.hum ?? ''}"></div></div></div>`; }).join('');
+  renderBulk(); $('#aSheet').classList.remove('on'); $('#bSheet').classList.add('on');
+}
+$('#aBulk').onclick = openBulk;
+$('#bX').onclick = () => $('#bSheet').classList.remove('on');
+$('#bDate').onchange = e => { if(!e.target.value) return; $$('#bEnv input').forEach(i => { const v = envAll(i.dataset.e)[e.target.value] || {}; i.value = v[i.dataset.k] ?? ''; }); };
+$('#bOk').onclick = async () => {
+  const d = $('#bDate').value || homeDate, note = $('#bNote').value.trim();
+  $$('#bEnv input').forEach(i => { const E = envAll(i.dataset.e), cur = Object.assign({hot:null, cool:null, hum:null}, E[d] || {}); cur[i.dataset.k] = num(i.value); setEnv(d, i.dataset.e, cur); });
+  const done = [];
+  for(const id of B.sel){ const e = getE(d, id) || blank(d);
+    if(B.fed!=null){ e.fed = B.fed; e.feedDate = d; }
+    if(B.poop!=null){ e.poop = B.poop; e.poopDate = d; }
+    if(note) e.note = e.note.trim() ? e.note.trim() + ' / ' + note : note;
+    putE(e, id); done.push([e, id]); }
+  INDEX = LS.get('idx:'+CUR, {}); if(entry && entry.date===d) entry = getE(d) || blank(d);
+  $('#bSheet').classList.remove('on'); renderHome(); if(calOn) renderCal(); else if(entry) renderForm();
+  toast(`${done.length}마리 기록을 저장했어요`);
+  if(GH.ok() && done.length){ try{ for(const [e, id] of done) await upload(e, id); toast('깃허브에도 저장했어요'); }catch(er){ toast('폰에는 저장됐어요. 깃허브 실패: ' + er.message); } }
+};
+
+/* ---------- 백업 ---------- */
+$('#bkOut').onclick = async () => {
+  const ls = {}; Object.keys(localStorage).filter(k => /^(animals|encs|cur|vets|idx:|e:|env:)/.test(k)).forEach(k => ls[k] = localStorage.getItem(k));
+  const st = {...S}; delete st.token; ls.settings = JSON.stringify(st);
+  const img = {}; const keys = new Set(ANI.map(a => 'img:'+a.id));
+  Object.keys(ls).filter(k => k.startsWith('e:')).forEach(k => { try{ JSON.parse(ls[k]).photos.forEach(p => p.startsWith('local:') && keys.add(p)); }catch(e){} });
+  for(const k of keys){ const v = await IDB.get(k).catch(()=>null); if(v) img[k] = v; }
+  const blob = new Blob([JSON.stringify({app:'snake-diary', v:1, at:new Date().toISOString(), ls, img})], {type:'application/json'});
+  const u = URL.createObjectURL(blob), l = document.createElement('a'); l.href = u; l.download = `snake-diary-backup-${today()}.json`; document.body.appendChild(l); l.click(); l.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000);
+  toast('백업 파일을 내려받았어요');
+};
+$('#bkIn').onchange = async ev => { const f = ev.target.files[0]; ev.target.value = ''; if(!f) return;
+  try{ const j = JSON.parse(await f.text()); if(j.app!=='snake-diary' || !j.ls) throw new Error();
+    if(!confirm('지금 폰에 있는 기록을 백업 파일 내용으로 바꿀까요?')) return;
+    const tok = S.token; Object.keys(localStorage).filter(k => /^(animals|encs|cur|vets|idx:|e:|env:)/.test(k)).forEach(k => localStorage.removeItem(k));
+    for(const k in j.ls) localStorage.setItem(k, j.ls[k]);
+    if(tok){ const st = JSON.parse(localStorage.getItem('settings') || '{}'); st.token = tok; localStorage.setItem('settings', JSON.stringify(st)); }
+    for(const k in (j.img||{})) await IDB.put(k, j.img[k]);
+    toast('불러왔어요. 다시 여는 중…'); setTimeout(() => location.reload(), 700);
+  }catch(e){ toast('백업 파일을 읽지 못했어요'); } };
 
 $$('nav.tabs button').forEach(b => b.onclick = () => { if(b.dataset.v==='v-log') goLog(entry ? entry.date : today()); else go(b.dataset.v); });
 $('#hDateIn').onchange = e => { if(e.target.value){ homeDate = e.target.value; renderHome(); } };
@@ -997,7 +1366,7 @@ $('#sTest').onclick = async () => { $('#sSave').click(); const o = $('#sResult')
   catch(e){ o.innerHTML = `<div class="msg">연결 실패: ${e.status===401?'토큰이 올바르지 않아요':e.status===404?'저장소를 찾을 수 없어요':esc(e.message)}</div>`; } };
 
 try{ if('serviceWorker' in navigator && location.protocol==='https:' && !/claude\.ai|claudeusercontent/.test(location.host)) navigator.serviceWorker.register('sw.js').catch(()=>{}); }catch(e){}
-loadSettings();
+loadSettings(); applyImg();
 openDate(today()).then(() => { renderHome(); fit(); });
 </script>
 </body>
