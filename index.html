@@ -17,7 +17,7 @@
 <style>
 :root{
   --bg:#fdf6e6; --card:#fef9ef; --white:#fffdf7; --ink:#5e4a33; --title:#6f5840; --ink2:#a8977d; --muted:#c3b499;
-  --line:#efe3cb; --sel:#ffe8a7; --sel-ink:#6b5320; --btn:#fde8a3; --accent:#f3c64f;
+  --line:#efe3cb; --sel:#ffe8a7; --sel-ink:#6b5320; --btn:#fde8a3; --accent:#f3c64f; --accent-ink:#e9b93a;
   --shadow:0 4px 14px rgba(190,150,80,.10);
   --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
 }
@@ -297,7 +297,7 @@ img.own{object-fit:cover;border-radius:22px;border:3px solid #fffdf8;box-shadow:
 .ava{display:flex;flex-direction:column;align-items:center;min-width:0;z-index:1;animation:bob 2.8s ease-in-out infinite;animation-delay:var(--b)}
 .ava img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #fff;background:#fbefd2;box-shadow:0 2px 6px rgba(120,90,40,.18)}
 .ava small{font-size:10.5px;max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3}
-.ava.me img{border-color:#f3c64f;box-shadow:0 0 0 2px #f3c64f}
+.ava.me img{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
 .bin .empty-t{align-self:center;font-size:12px;color:#a8977d}
 .rack.edit .bin{animation:wig .32s ease-in-out infinite alternate}
 .rack.edit .rrow .blk:nth-child(2n) .bin{animation-delay:-.16s}
@@ -332,8 +332,8 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;max-width:430px;margi
   box-shadow:0 -4px 18px rgba(190,150,80,.10);display:grid;grid-template-columns:repeat(4,1fr);padding:10px 6px calc(12px + var(--safe-b))}
 nav.tabs button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;color:var(--ink2);cursor:pointer;padding:4px 0 8px;position:relative}
 nav.tabs button .ic{font-size:26px}
-nav.tabs button[aria-selected="true"]{color:#e9b93a}
-nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom:0;width:58px;height:3px;border-radius:3px;background:#f3c64f}
+nav.tabs button[aria-selected="true"]{color:var(--accent-ink)}
+nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom:0;width:58px;height:3px;border-radius:3px;background:var(--accent)}
 .toast{position:fixed;left:50%;bottom:calc(100px + var(--safe-b));transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:12px;font-size:13.5px;z-index:40;display:none;max-width:90vw;text-align:center}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 /* 키 작은 화면: 여백·그림을 줄여서 글자가 덜 작아지게 */
@@ -566,6 +566,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
   <div class="box" id="brand">
     <b style="color:var(--title)">앱 꾸미기</b>
     <div class="g2"><div><label class="f" for="sAppTitle">앱 이름 (홈 맨 위)</label><input class="inp" id="sAppTitle"></div><div><label class="f" for="sAppTag">작은 글자</label><input class="inp" id="sAppTag"></div></div>
+    <label class="f">대표 색</label><div class="sw" id="themeSw"></div>
     <label class="f">마크</label>
     <div class="g2"><label class="mini-btn" style="background:var(--white);border:1px solid var(--line)">마크 고르기<input type="file" id="markIn2" accept="image/*" class="sr"></label><button class="mini-btn" id="markDel" style="background:var(--white);border:1px solid var(--line)">마크 비우기</button></div>
     <p class="hint">홈 맨 위 동그라미를 눌러도 마크를 바꿀 수 있어요.</p>
@@ -779,7 +780,21 @@ function putE(e, aid, clean){ aid = aid || CUR; markDirty(aid, e.date, !clean);
   LS.set('idx:'+aid, I);
   const an = A(aid); if(an){ an.lastAt = Date.now(); saveAni(); }
 }
-function persist(){ putE(entry); $('#savedNote').textContent = '폰에 자동 저장됨 · ' + nowHM(); }
+/* 급여일·배변일·탈피일이 기록한 날과 다르면 그 날짜 기록으로 옮기기 */
+const EV = {feed:['fed','feedDate',['food']], poop:['poop','poopDate',[]], shed:['shed','shedDate',[]]};
+function moveEvents(e, aid){ let to = null;
+  for(const k in EV){ const [v, dk, extra] = EV[k], t = e[dk];
+    if(e[v]==null || !t || t===e.date) continue;
+    const x = getE(t, aid) || blank(t);
+    x[v] = e[v]; x[dk] = t; extra.forEach(f => x[f] = e[f] ?? null);
+    e[v] = null; e[dk] = e.date; extra.forEach(f => e[f] = null);
+    putE(x, aid); to = t; }
+  return to; }
+function persist(){ const to = moveEvents(entry);
+  putE(entry); $('#savedNote').textContent = '폰에 자동 저장됨 · ' + nowHM();
+  if(to){ openDate(to); toast(`${kd(to)} 기록으로 옮겼어요`); } }
+function fixAllDates(){ ANI.forEach(a => { const I = LS.get('idx:'+a.id, {});
+  Object.keys(I).forEach(d => { const e = getE(d, a.id); if(e && moveEvents(e, a.id)) putE(e, a.id); }); }); INDEX = LS.get('idx:'+CUR, {}); }
 
 /* ---------- GitHub ---------- */
 const GH = {
@@ -1559,6 +1574,18 @@ async function applyBrand(){
   $('#markImg').hidden = !m; $('#markPh').hidden = !!m; if(m) $('#markImg').src = m; else $('#markImg').removeAttribute('src');
   refit();
 }
+const THEMES = {
+  '노랑':  {sel:'#ffe8a7', ink:'#6b5320', btn:'#fde8a3', acc:'#f3c64f', accInk:'#e9b93a'},
+  '살구':  {sel:'#fde0c8', ink:'#74452a', btn:'#fbd8bd', acc:'#f2a873', accInk:'#e08a50'},
+  '분홍':  {sel:'#fadbe0', ink:'#7a3a46', btn:'#f8d3da', acc:'#ec93a5', accInk:'#d9708a'},
+  '라벤더':{sel:'#e4dbf6', ink:'#4b3a74', btn:'#ddd2f3', acc:'#a98ee0', accInk:'#8a6cd1'},
+  '하늘':  {sel:'#d3e6f7', ink:'#2f4f6e', btn:'#cde2f5', acc:'#79aee0', accInk:'#4f8ccb'},
+  '민트':  {sel:'#cdeedd', ink:'#2f5e47', btn:'#c6ebd7', acc:'#6fc39a', accInk:'#4aa77b'}
+};
+function applyTheme(){ const name = THEMES[S.theme] ? S.theme : THEMES[CFG.color] ? CFG.color : '노랑', t = THEMES[name], r = document.documentElement.style;
+  r.setProperty('--sel', t.sel); r.setProperty('--sel-ink', t.ink); r.setProperty('--btn', t.btn); r.setProperty('--accent', t.acc); r.setProperty('--accent-ink', t.accInk);
+  $('#themeSw').innerHTML = Object.entries(THEMES).map(([n, x]) => `<button data-th="${n}" aria-label="${n}" aria-pressed="${n===name}" style="--c:${x.btn};--cb:${x.acc}"></button>`).join('');
+  $$('#themeSw button').forEach(b => b.onclick = () => { S.theme = b.dataset.th; LS.set('settings', S); applyTheme(); toast(`대표 색: ${b.dataset.th}`); }); }
 const setMark = async f => { if(!f) return; try{ await IDB.put('mark', await shrinkTo(f, 400, 'image/png')); applyBrand(); toast('마크를 바꿨어요'); }catch(e){ toast('사진을 읽지 못했어요'); } };
 $('#markBtn').onclick = () => $('#markIn').click();
 $('#markIn').onchange = ev => { const f = ev.target.files[0]; ev.target.value = ''; setMark(f); };
@@ -1567,7 +1594,7 @@ $('#markDel').onclick = async () => { await IDB.del('mark').catch(()=>{}); apply
 $('#sAppTitle').oninput = e => { S.appTitle = e.target.value.trim(); LS.set('settings', S); applyBrand(); };
 $('#sAppTag').oninput = e => { const v = e.target.value.trim(); if(v) S.appTag = v; else delete S.appTag; LS.set('settings', S); applyBrand(); };
 
-loadSettings(); applyImg(); applyBrand();
+fixAllDates(); loadSettings(); applyImg(); applyBrand(); applyTheme();
 openDate(today()).then(() => { renderHome(); fit(); });
 </script>
 </body>
