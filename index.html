@@ -109,6 +109,11 @@ img.h-snake.ph{cursor:pointer}
 .tog button[aria-pressed="true"] .ck{display:inline}
 .fld{position:relative;display:flex;align-items:center;justify-content:center;height:36px;border:1px solid #f1e9d6;background:#fffdf8;border-radius:12px;font-size:14.5px;color:var(--ink)}
 .fld .ic{position:absolute;right:10px;font-size:19px;color:var(--ink2)}
+button.fld{width:100%;font:inherit;font-size:14px;cursor:pointer;padding:0 30px 0 10px;min-width:0}
+button.fld span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper button{width:40px;height:40px;border-radius:50%;border:1px solid #f1e9d6;background:#fdfcf5;font-size:20px;color:var(--ink);cursor:pointer}
+.stepper b{min-width:56px;text-align:center;font-size:17px}
 .fld input[type=date]{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;border:0}
 .unit{display:grid;grid-template-columns:1fr 26px;align-items:center;gap:6px}
 input::placeholder{color:#d2c4a8}
@@ -448,6 +453,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
       <div class="il"><img src="img/bowl.png" alt="" style="width:66px"></div>
       <div class="r-rows">
         <div class="r-row"><span class="rl">급여 여부</span><div class="tog" id="feedTog"></div></div>
+        <div class="r-row" id="foodRow" hidden><span class="rl">먹이</span><button type="button" class="fld" id="foodBtn"><span id="foodTx"></span><svg class="ic"><use href="#u-chev"/></svg></button></div>
         <div class="r-row"><span class="rl">급여일</span><label class="fld"><span id="feedDateTx"></span><svg class="ic"><use href="#u-cal"/></svg><input type="date" id="feedDate" aria-label="급여일"></label></div>
       </div>
     </div>
@@ -645,11 +651,25 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
   <button class="mini-btn" id="eOk" style="margin-top:16px;width:100%;height:44px">저장하기</button>
   <div class="g3" style="margin-top:8px" id="eMore"><button class="mini-btn" id="eUp" style="background:var(--white);border:1px solid var(--line)">위로</button><button class="mini-btn" id="eDown" style="background:var(--white);border:1px solid var(--line)">아래로</button><button class="mini-btn" id="eDel" style="background:var(--white);border:1px solid var(--line);color:#b53a2c">지우기</button></div>
 </div></div>
+<div class="sheet" id="fSheet" style="z-index:40"><div class="in">
+  <div class="g-head"><b style="color:var(--title)">무엇을 얼마나 먹였나요?</b><button class="mini-btn" id="fX" style="height:34px;background:var(--white);border:1px solid var(--line)">닫기</button></div>
+  <label class="f">결과</label><div class="chips" id="fRes"></div>
+  <label class="f">먹이 종류</label><div class="chips" id="fType"></div>
+  <div id="fSizeBox"><label class="f">크기</label><div class="chips" id="fSize"></div></div>
+  <div id="fEtcBox" hidden><label class="f" for="fEtc">먹이 이름</label><input class="inp" id="fEtc" maxlength="20" placeholder="예: 햄스터, 게르빌"></div>
+  <div class="g2" style="align-items:end">
+    <div><label class="f">마리 수</label><div class="stepper"><button type="button" id="fMinus" aria-label="1마리 빼기">−</button><b id="fN">1마리</b><button type="button" id="fPlus" aria-label="1마리 더하기">+</button></div></div>
+    <div><label class="f" for="fG">먹이 무게 (g, 선택)</label><input class="inp" id="fG" inputmode="decimal" placeholder="예: 35"></div>
+  </div>
+  <p class="hint" id="fPct" style="margin-top:8px"></p>
+  <button class="mini-btn" id="fOk" style="margin-top:12px;width:100%;height:44px">저장하기</button>
+</div></div>
 <div class="sheet" id="bSheet"><div class="in">
   <div class="g-head"><b style="color:var(--title)">여러 마리 한 번에 기록</b><button class="mini-btn" id="bX" style="height:34px;background:var(--white);border:1px solid var(--line)">닫기</button></div>
   <label class="f" for="bDate">날짜</label><input class="inp" type="date" id="bDate">
   <label class="f">기록할 개체</label><div class="chips" id="bAnimals"></div>
   <label class="f">급여 여부</label><div class="tog" id="bFeed"></div>
+  <p class="hint" id="bFood" hidden style="margin:6px 2px 0"></p>
   <label class="f">배변 여부</label><div class="tog" id="bPoop"></div>
   <label class="f" for="bNote">특이사항 (고른 개체 모두에)</label><input class="inp" id="bNote" placeholder="비우면 그대로 둬요">
   <label class="f">사육장 온도 · 습도</label><div id="bEnv"></div>
@@ -743,8 +763,8 @@ const idxOf = aid => aid===CUR ? INDEX : LS.get('idx:'+aid, {});
 const IX = (d, aid) => { const s = idxOf(aid||CUR)[d], e = envOf(d, aid); return s || e ? Object.assign({}, s || {}, e || {}) : undefined; };
 const photoCache = {};
 const blank = date => ({date, fed:null, feedDate:date, poop:null, poopDate:date, hot:null, cool:null, hum:null, shed:null, shedDate:date, note:'', weight:null, photos:[], caps:{}});
-const isEmpty = e => e.fed==null && e.poop==null && e.shed==null && !e.note.trim() && e.weight==null && !e.photos.length;
-const summ = e => ({date:e.date, fed:e.fed, feedDate:e.feedDate, poop:e.poop, poopDate:e.poopDate, shed:e.shed, shedDate:e.shedDate, note:(e.note||'').slice(0,60), weight:e.weight, photos:e.photos.slice(0,30), caps:e.caps||{}});
+const isEmpty = e => e.fed==null && !e.food && e.poop==null && e.shed==null && !e.note.trim() && e.weight==null && !e.photos.length;
+const summ = e => ({date:e.date, fed:e.fed, feedDate:e.feedDate, poop:e.poop, poopDate:e.poopDate, shed:e.shed, shedDate:e.shedDate, note:(e.note||'').slice(0,60), weight:e.weight, food:e.food||null, photos:e.photos.slice(0,30), caps:e.caps||{}});
 const ek = (d, aid) => `e:${aid||CUR}:${d}`;
 const getE = (d, aid) => { const v = LS.get(ek(d, aid), null), en = envOf(d, aid);
   if(!v && !en) return null; const e = Object.assign(blank(d), v || {}); if(en) Object.assign(e, en); else Object.assign(e, {hot:null, cool:null, hum:null}); return e; };
@@ -783,7 +803,7 @@ const GH = {
 const b64 = str => { const b = new TextEncoder().encode(str); let s=''; for(let i=0;i<b.length;i+=0x8000) s += String.fromCharCode.apply(null, b.subarray(i,i+0x8000)); return btoa(s); };
 function toMd(e, a){
   const L = [`# ${e.date.slice(0,4)}년 ${kd(e.date)} · ${nm(a)}`, ''];
-  if(e.fed!=null) L.push(`- **급여 여부**: ${e.fed?'급여함':'미급여'}${e.fed?` (급여일 ${dot(e.feedDate)})`:''}`);
+  if(e.fed!=null) L.push(`- **급여 여부**: ${feedWord(e)}${e.fed?` (급여일 ${dot(e.feedDate)})`:''}${e.food ? ` · ${foodText(e.food)}` : ''}`);
   if(e.poop!=null) L.push(`- **배변 여부**: ${e.poop?'있음':'없음'}${e.poop?` (배변일 ${dot(e.poopDate)})`:''}`);
   if(e.hot!=null) L.push(`- **핫존**: ${e.hot}℃`);
   if(e.cool!=null) L.push(`- **쿨존**: ${e.cool}℃`);
@@ -843,6 +863,47 @@ function ghFail(er, quiet){
   toast((quiet ? '깃허브에 못 올렸어요: ' : '폰에는 저장됐어요. 깃허브 실패: ') + (er && er.status===403 ? '토큰 권한을 확인해 주세요 (Contents: Read and write)' : er.message));
 }
 
+/* ================= 먹이 ================= */
+const FOOD = {
+  '생쥐': ['핑키','퍼지','호퍼','위너','성체'],
+  '랫': ['핑키','퍼지','위너','스몰','미디엄','라지'],
+  '병아리': ['1~3일령','4~7일령','2주 이상'],
+  '메추리': ['새끼','성체'],
+  '기타': []
+};
+const foodName = f => f.type==='기타' ? (f.etc || '기타') : f.type;
+const foodText = f => f ? [foodName(f) + (f.size ? ` ${f.size}` : ''), `${f.n || 1}마리`, f.g!=null ? `${f.g}g` : ''].filter(Boolean).join(' · ') : '';
+const feedWord = e => e.fed==null ? '—' : e.fed ? '급여함' : e.food && e.food.refused ? '거부' : '미급여';
+function lastFood(){ let best = null; for(const d in INDEX){ const v = INDEX[d]; if(v.food && !v.food.refused && (!best || d > best.d)) best = {d, f:v.food}; } return best ? best.f : null; }
+const F = {res:'ate', type:'병아리', size:'1~3일령', n:1, cb:null};
+function openFood(init, cb){
+  const f = init || lastFood() || {type:'병아리', size:'1~3일령', n:1};
+  Object.assign(F, {res: init && init.refused ? 'no' : 'ate', type: f.type || '병아리', size: f.size || '', n: f.n || 1, cb});
+  $('#fEtc').value = f.etc || ''; $('#fG').value = f.g ?? '';
+  renderFood(); $('#fSheet').classList.add('on');
+}
+function renderFood(){
+  $('#fRes').innerHTML = [['ate','먹었어요'],['no','거부했어요']].map(([k,t]) => `<button data-r="${k}" aria-pressed="${F.res===k}">${t}</button>`).join('');
+  $('#fType').innerHTML = Object.keys(FOOD).map(t => `<button data-t="${t}" aria-pressed="${F.type===t}">${t}</button>`).join('');
+  const sizes = FOOD[F.type] || [];
+  $('#fSizeBox').hidden = !sizes.length; $('#fEtcBox').hidden = F.type!=='기타';
+  $('#fSize').innerHTML = sizes.map(z => `<button data-z="${z}" aria-pressed="${F.size===z}">${z}</button>`).join('');
+  $('#fN').textContent = `${F.n}마리`;
+  $$('#fRes button').forEach(b => b.onclick = () => { F.res = b.dataset.r; renderFood(); });
+  $$('#fType button').forEach(b => b.onclick = () => { F.type = b.dataset.t; if(!(FOOD[F.type]||[]).includes(F.size)) F.size = (FOOD[F.type]||[])[0] || ''; renderFood(); });
+  $$('#fSize button').forEach(b => b.onclick = () => { F.size = b.dataset.z; renderFood(); });
+  foodPct();
+}
+function foodPct(){ const g = num($('#fG').value), w = lastWeight(entry ? entry.date : today());
+  $('#fPct').textContent = g!=null && w ? `몸무게 ${w.cur}g의 ${Math.round(g * F.n / w.cur * 100)}%예요. 보통 10~15%가 알맞아요.` : w ? `몸무게 ${w.cur}g 기준 알맞은 먹이 무게: ${Math.round(w.cur*.1)}~${Math.round(w.cur*.15)}g` : ''; }
+$('#fG').oninput = foodPct;
+$('#fMinus').onclick = () => { F.n = Math.max(1, F.n - 1); renderFood(); };
+$('#fPlus').onclick = () => { F.n = Math.min(20, F.n + 1); renderFood(); };
+$('#fX').onclick = () => { $('#fSheet').classList.remove('on'); if(F.cb) F.cb(null); };
+$('#fOk').onclick = () => { const food = {type:F.type, size: (FOOD[F.type]||[]).length ? F.size : '', n:F.n};
+  if(F.type==='기타') food.etc = $('#fEtc').value.trim(); const g = num($('#fG').value); if(g!=null) food.g = g; if(F.res==='no') food.refused = true;
+  $('#fSheet').classList.remove('on'); if(F.cb) F.cb(food); };
+
 /* ================= 주기 계산 ================= */
 function lastOf(pred, dateKey, upto){
   let best = null;
@@ -879,7 +940,7 @@ function renderHome(){
   const w = lastWeight(d);
   $('#hWeight').innerHTML = w ? `<b>${w.cur}</b><small>g</small>${w.prev!=null && w.cur>w.prev ? '<svg class="ic tr"><use href="#u-trend"/></svg>' : ''}`
                               : `<b style="font-size:17px;font-weight:500;color:var(--ink2)">눌러서 체중을 기록하세요</b>`;
-  $('#tFeed').innerHTML = `<i></i>${e && e.fed!=null ? (e.fed?'급여함':'미급여') : '—'}`;
+  $('#tFeed').innerHTML = `<i></i>${e && e.fed!=null ? feedWord(e) : '—'}`;
   const fi = feedInfo(d); $('#tFeedNext').textContent = fi.text; $('#tFeedNext').classList.toggle('due', fi.due);
   $('#tPoop').innerHTML = `<i></i>${e && e.poop!=null ? (e.poop?'완료':'없음') : '—'}`;
   $('#tTemp').textContent = e && (e.hot!=null || e.cool!=null) ? `${e.hot ?? '—'}° / ${e.cool ?? '—'}°` : '—';
@@ -897,7 +958,11 @@ function renderForm(){
   $('#rDate').textContent = dotW(entry.date); $('#rDateIn').value = entry.date;
   if(!calOn) $('#rSub').innerHTML = `오늘도 ${esc(nm(P()))}의<br>건강을 체크해요!`;
   const r3 = R3(); $('#hot').placeholder = rg(r3.hot); $('#cool').placeholder = rg(r3.cool); $('#hum').placeholder = rg(r3.hum);
-  tog($('#feedTog'), '급여함', '미급여', entry.fed, v => { entry.fed = v; renderForm(); persist(); });
+  tog($('#feedTog'), '급여함', '미급여', entry.fed, v => {
+    if(v===true){ entry.fed = true; renderForm(); persist(); openFood(entry.food && !entry.food.refused ? entry.food : null, f => { if(f){ entry.food = f; entry.fed = !f.refused; } renderForm(); persist(); }); return; }
+    entry.fed = v; if(v===null) entry.food = null; else if(entry.food && !entry.food.refused) entry.food = null; renderForm(); persist(); });
+  $('#foodRow').hidden = !(entry.fed===true || (entry.food && entry.food.refused));
+  $('#foodTx').textContent = entry.food ? (entry.food.refused ? '거부 · ' : '') + foodText(entry.food) : '눌러서 먹이 고르기';
   tog($('#poopTog'), '있음', '없음', entry.poop, v => { entry.poop = v; renderForm(); persist(); });
   tog($('#shedTog'), '눈 뿌옇게', '탈피 완료', entry.shed==='blue' ? true : entry.shed==='done' ? false : null,
       v => { entry.shed = v===true ? 'blue' : v===false ? 'done' : null; renderForm(); persist(); });
@@ -937,7 +1002,7 @@ function setCal(on){
   refit();
 }
 function setCV(v){ CV = v; $$('.seg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cv===v)); renderCal(); }
-const brief = s => [s.fed!=null ? `급여 ${s.fed?'함':'안 함'}` : '', s.shed ? (s.shed==='blue'?'눈 뿌옇게':'탈피 완료') : '', s.poop!=null ? `배변 ${s.poop?'있음':'없음'}` : '', (s.hot!=null||s.cool!=null) ? `핫 ${s.hot??'—'}° 쿨 ${s.cool??'—'}°` : '', s.hum!=null ? `${s.hum}%` : '', s.note ? `<span>${esc(s.note)}</span>` : ''].filter(Boolean).join(' · ');
+const brief = s => [s.fed!=null ? (s.fed ? `급여 ${s.food ? foodText(s.food) : '함'}` : s.food && s.food.refused ? `급여 거부 (${foodName(s.food)})` : '급여 안 함') : '', s.shed ? (s.shed==='blue'?'눈 뿌옇게':'탈피 완료') : '', s.poop!=null ? `배변 ${s.poop?'있음':'없음'}` : '', (s.hot!=null||s.cool!=null) ? `핫 ${s.hot??'—'}° 쿨 ${s.cool??'—'}°` : '', s.hum!=null ? `${s.hum}%` : '', s.note ? `<span>${esc(s.note)}</span>` : ''].filter(Boolean).join(' · ');
 function dayBrief(d){ const s = IX(d);
   return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="font-size:15px">${kd(d)}</b>${s?`<button class="mini-btn" data-o="${d}" style="height:32px">자세히</button>`:''}</div>
     <div style="font-size:13.5px;margin-top:8px">${s ? brief(s) : '<span class="hint">기록이 없어요</span>'}</div>
@@ -945,7 +1010,8 @@ function dayBrief(d){ const s = IX(d);
 function dayFull(d){ const e = getE(d) || (IX(d) ? Object.assign(blank(d), IX(d)) : null);
   if(!e) return `<div class="empty">기록이 없어요</div><div style="text-align:center"><button class="mini-btn" data-w="${d}">이 날 기록하기</button></div>`;
   return `<table class="t">
-    <tr><th>급여 여부</th><td>${e.fed==null?'—':e.fed?`급여함 · ${dot(e.feedDate)}`:'미급여'}</td></tr>
+    <tr><th>급여 여부</th><td>${e.fed==null?'—':e.fed?`급여함 · ${dot(e.feedDate)}`:feedWord(e)}</td></tr>
+    ${e.food?`<tr><th>먹이</th><td>${esc(foodText(e.food))}</td></tr>`:''}
     <tr><th>배변 여부</th><td>${e.poop==null?'—':e.poop?`있음 · ${dot(e.poopDate)}`:'없음'}</td></tr>
     <tr><th>핫존</th><td>${e.hot!=null?e.hot+'°C':'—'}</td></tr>
     <tr><th>쿨존</th><td>${e.cool!=null?e.cool+'°C':'—'}</td></tr>
@@ -1389,11 +1455,12 @@ const B = {fed:null, poop:null, sel:new Set()};
 function renderBulk(){
   $('#bAnimals').innerHTML = ANI.map(a => `<button data-b="${a.id}" aria-pressed="${B.sel.has(a.id)}">${esc(nm(a))}</button>`).join('');
   $$('#bAnimals button').forEach(b => b.onclick = () => { const id = b.dataset.b; B.sel.has(id) ? B.sel.delete(id) : B.sel.add(id); renderBulk(); });
-  tog($('#bFeed'), '급여함', '미급여', B.fed, v => { B.fed = v; renderBulk(); });
+  tog($('#bFeed'), '급여함', '미급여', B.fed, v => { B.fed = v; if(v===true){ openFood(B.food, f => { if(f){ B.food = f; B.fed = !f.refused; } renderBulk(); }); } else B.food = null; renderBulk(); });
+  $('#bFood').hidden = !B.food; $('#bFood').textContent = B.food ? `먹이: ${B.food.refused ? '거부 · ' : ''}${foodText(B.food)} (모두 같게)` : '';
   tog($('#bPoop'), '있음', '없음', B.poop, v => { B.poop = v; renderBulk(); });
 }
 function openBulk(){
-  B.fed = null; B.poop = null; B.sel = new Set(ANI.map(a => a.id));
+  B.fed = null; B.poop = null; B.food = null; B.sel = new Set(ANI.map(a => a.id));
   $('#bDate').value = homeDate; $('#bNote').value = '';
   const d = homeDate;
   $('#bEnv').innerHTML = ENC.filter(e => ANI.some(a => encOf(a).id===e.id)).map(e => { const v = envAll(e.id)[d] || {};
@@ -1408,7 +1475,7 @@ $('#bOk').onclick = async () => {
   $$('#bEnv input').forEach(i => { const E = envAll(i.dataset.e), cur = Object.assign({hot:null, cool:null, hum:null}, E[d] || {}); cur[i.dataset.k] = num(i.value); setEnv(d, i.dataset.e, cur); });
   const done = [];
   for(const id of B.sel){ const e = getE(d, id) || blank(d);
-    if(B.fed!=null){ e.fed = B.fed; e.feedDate = d; }
+    if(B.fed!=null){ e.fed = B.fed; e.feedDate = d; e.food = B.food ? {...B.food} : null; }
     if(B.poop!=null){ e.poop = B.poop; e.poopDate = d; }
     if(note) e.note = e.note.trim() ? e.note.trim() + ' / ' + note : note;
     putE(e, id); done.push([e, id]); }
@@ -1458,6 +1525,7 @@ $('#shedDate').onchange = e => { if(e.target.value){ entry.shedDate = e.target.v
 $('#hum').oninput = e => { entry.hum = num(e.target.value); persist(); };
 $('#note').oninput = e => { entry.note = e.target.value; persist(); };
 $('#save').onclick = save;
+$('#foodBtn').onclick = () => openFood(entry.food, f => { if(f){ entry.food = f; entry.fed = !f.refused; } renderForm(); persist(); });
 $('#lbX').onclick = () => $('#lb').classList.remove('on');
 function renderGh(){ const on = !!(S.ghLinked && GH.ok()), n = dirtyCount();
   $('#ghOn').hidden = !on; $('#ghForm').hidden = on;
