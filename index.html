@@ -290,6 +290,10 @@ img.own{object-fit:cover;border-radius:22px;border:3px solid #fffdf8;box-shadow:
 .rack.edit .bin{animation:wig .32s ease-in-out infinite alternate}
 .rack.edit .rrow .blk:nth-child(2n) .bin{animation-delay:-.16s}
 .rack.edit .bin .lamp{display:none}
+.ava{position:relative}
+.rack.edit .ava{animation:none}
+.axd{position:absolute;right:-6px;top:-5px;z-index:2;width:22px;height:22px;border-radius:50%;background:#c9553f;color:#fff;font-style:normal;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;border:2px solid #fffdf8;cursor:pointer;box-shadow:0 1px 4px rgba(120,60,30,.3)}
+.axd.hl{position:static;margin-left:2px;width:20px;height:20px}
 .blk .xdel{position:absolute;right:-7px;top:-8px;z-index:3;width:28px;height:28px;border-radius:50%;border:2px solid #fffdf8;background:#c9553f;color:#fff;font-size:17px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 6px rgba(120,60,30,.3);padding:0;animation:pop .25s ease-out}
 .blk.bye{animation:bye .38s ease-in forwards}
 @keyframes bye{0%{transform:none;opacity:1}30%{transform:scale(1.06) rotate(-2deg)}100%{transform:translateY(40px) scale(.5) rotate(8deg);opacity:0}}
@@ -1200,7 +1204,7 @@ async function renderRack(el, opt){
     for(const e of row){ const who = ANI.filter(a => encOf(a).id===e.id), sz = Math.min(4, Math.max(1, +e.size || 2));
       const anim = opt.anim==='all' || opt.anim===e.id;
       let inner = '';
-      for(const [j,a] of who.slice(0, sz*2).entries()) inner += `<span class="ava${a.id===CUR?' me':''}" style="--b:${(j*.37).toFixed(2)}s"><img data-ava="${a.id}" src="img/snake.png" alt="">${sz>1 ? `<small>${esc(nm(a))}</small>` : ''}</span>`;
+      for(const [j,a] of who.slice(0, sz*2).entries()) inner += `<span class="ava${a.id===CUR?' me':''}" style="--b:${(j*.37).toFixed(2)}s">${opt.edit ? `<i class="axd" data-adel="${a.id}" role="button" aria-label="${esc(nm(a))} 지우기">×</i>` : ''}<img data-ava="${a.id}" src="img/snake.png" alt="">${sz>1 ? `<small>${esc(nm(a))}</small>` : ''}</span>`;
       if(who.length > sz*2) inner += `<span class="empty-t">+${who.length - sz*2}</span>`;
       if(!who.length) inner = `<span class="empty-t">${sz>1 ? '비어 있어요' : '빈 곳'}</span>`;
       const xd = opt.edit ? `<button class="xdel" data-del="${e.id}" aria-label="${esc(e.name)} 지우기">×</button>` : '';
@@ -1209,11 +1213,12 @@ async function renderRack(el, opt){
     h += '</div>'; }
   h += '</div><div class="floor"></div></div>';
   const homeless = ANI.filter(a => encOf(a).id==='none');
-  if(homeless.length) h += `<div class="homeless">사육장 없는 친구${homeless.map(a => `<button data-hl="${a.id}"><img data-ava="${a.id}" src="img/snake.png" alt="">${esc(nm(a))}</button>`).join('')}</div>`;
+  if(homeless.length) h += `<div class="homeless">사육장 없는 친구${homeless.map(a => `<button data-hl="${a.id}"><img data-ava="${a.id}" src="img/snake.png" alt="">${esc(nm(a))}${opt.edit ? `<i class="axd hl" data-adel="${a.id}" role="button" aria-label="${esc(nm(a))} 지우기">×</i>` : ''}</button>`).join('')}</div>`;
   if(opt.edit) h += `<button class="add-blk" data-addenc><svg class="ic"><use href="#u-plus"/></svg>사육장 쌓기</button>`;
   el.innerHTML = h;
   el.querySelectorAll('[data-ava]').forEach(im => avaOf(im.dataset.ava).then(u => { im.src = u; }));
   el.querySelectorAll('.bin').forEach(b => b.onclick = () => tapEnc(b.dataset.enc, opt));
+  el.querySelectorAll('[data-adel]').forEach(b => b.onclick = ev => { ev.stopPropagation(); delAnimal(b.dataset.adel); });
   el.querySelectorAll('[data-del]').forEach(b => b.onclick = ev => { ev.stopPropagation(); delEnc(b.dataset.del, b.closest('.blk')); });
   el.querySelectorAll('[data-hl]').forEach(b => b.onclick = () => openAnimal(b.dataset.hl));
   const ad = el.querySelector('[data-addenc]'); if(ad) ad.onclick = () => openEnc(null);
@@ -1234,7 +1239,7 @@ function tapEnc(id, opt){
 function openRack(){ rackEdit = false; $('#rEdit').textContent = '꾸미기'; $('#rackHint').textContent = '사육장을 누르면 그 안에 사는 친구의 기록을 써요.'; $('#rackPick').innerHTML = '';
   $('#aSheet').classList.add('on'); renderRack($('#rackS'), {anim:'all'}); }
 $('#rEdit').onclick = () => { rackEdit = !rackEdit; $('#rEdit').textContent = rackEdit ? '다 했어요' : '꾸미기'; $('#rackPick').innerHTML = '';
-  $('#rackHint').textContent = rackEdit ? '사육장을 눌러 크기·색·사는 친구를 바꾸고, ×로 지워요.' : '사육장을 누르면 그 안에 사는 친구의 기록을 써요.';
+  $('#rackHint').textContent = rackEdit ? '사육장을 눌러 크기·색·사는 친구를 바꿔요. 사육장 ×는 사육장을, 친구 사진 ×는 그 친구를 지워요.' : '사육장을 누르면 그 안에 사는 친구의 기록을 써요.';
   renderRack($('#rackS'), {edit:rackEdit}); };
 function renderFamily(){ renderRack($('#famList'), {pick:'#famPick'}); if(!$('#famPick')) $('#famList').insertAdjacentHTML('afterend', '<div id="famPick"></div>'); }
 function refreshRacks(anim){ IMGC[CUR] = undefined; delete IMGC[CUR];
@@ -1289,15 +1294,20 @@ async function delEnc(id, blkEl){ const e = ENC.find(x => x.id===id); if(!e) ret
 $('#eDel').onclick = () => delEnc(ED.id);
 $('#addAnimal').onclick = addAnimal; $('#aAdd').onclick = addAnimal;
 $('#addEnc').onclick = () => { openRack(); $('#rEdit').click(); };
-$('#aDel').onclick = async () => {
-  if(ANI.length<2){ toast('개체가 1마리일 때는 지울 수 없어요'); return; }
-  if(!await ask(`${nm(P())}의 기록을 모두 지울까요?`, '되돌릴 수 없어요.')) return;
-  const id = CUR, I = LS.get('idx:'+id, {});
-  for(const d in I){ const e = LS.get(ek(d, id), null); if(e) e.photos.forEach(p => p.startsWith('local:') && IDB.del(p).catch(()=>{})); LS.del(ek(d, id)); }
+async function delAnimal(id){
+  const a = A(id); if(!a) return;
+  if(ANI.length<2){ toast('1마리만 남았을 때는 지울 수 없어요'); return; }
+  if(!await ask(`${nm(a)}을(를) 지울까요?`, '프로필·사진·모든 기록이 지워져요. 되돌릴 수 없어요.')) return;
+  const I = LS.get('idx:'+id, {});
+  for(const d in I){ const e = LS.get(ek(d, id), null); if(e) e.photos.forEach(p => p.startsWith('local:') && IDB.del(p).catch(()=>{})); }
   Object.keys(localStorage).filter(k => k.startsWith(`e:${id}:`)).forEach(k => LS.del(k));
-  LS.del('idx:'+id); IDB.del('img:'+id).catch(()=>{});
-  ANI = ANI.filter(a => a.id!==id); saveAni(); $('#pfEdit').open = false; switchAnimal(ANI[0].id); toast('지웠어요');
-};
+  LS.del('idx:'+id); IDB.del('img:'+id).catch(()=>{}); delete IMGC[id];
+  ANI = ANI.filter(x => x.id!==id); saveAni(); $('#pfEdit').open = false; $('#rackPick').innerHTML = '';
+  if(id===CUR) switchAnimal(ANI[0].id); refreshRacks(); renderProfile();
+  if($('#eSheet').classList.contains('on')){ ED.who.delete(id); renderEd(); }
+  toast(`${nm(a)}을(를) 지웠어요`);
+}
+$('#aDel').onclick = () => delAnimal(CUR);
 $('#petBtn').onclick = openRack;
 $('#aX').onclick = () => $('#aSheet').classList.remove('on');
 
