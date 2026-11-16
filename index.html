@@ -16,7 +16,7 @@
 <script src="config.js"></script>
 <style>
 :root{
-  --bg:#fdf6e6; --card:#fef9ef; --white:#fffdf8; --white2:#fdfcf5; --soft:#fbefd2; --line2:#e3cfa5; --deco:#c9ab80; --shc:190,150,80; --ink:#5e4a33; --title:#6f5840; --ink2:#a8977d; --muted:#c3b499;
+  --bg:#fdf6e6; --card:#fef9ef; --white:#fffdf8; --white2:#fdfcf5; --soft:#fbefd2; --line2:#e3cfa5; --deco:#c9ab80; --shc:190,150,80; --tbg:#5e4a33; --tink:#fff; --range:#eaf4e6; --ink:#5e4a33; --title:#6f5840; --ink2:#a8977d; --muted:#c3b499;
   --line:#efe3cb; --sel:#ffe8a7; --sel-ink:#6b5320; --btn:#fde8a3; --accent:#f3c64f; --accent-ink:#e9b93a;
   --shadow:0 4px 14px rgba(var(--shc),.10);
   --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
@@ -189,7 +189,7 @@ table.t th{font-weight:600;color:var(--ink2);font-size:12px;width:84px}
 .g-stats b{font-size:14px;color:var(--ink)}
 .g-ch{position:relative}
 .g-ch svg{display:block;width:100%;height:auto;touch-action:pan-y}
-.g-tip{position:absolute;pointer-events:none;background:var(--ink);color:#fff;font-size:12px;border-radius:8px;padding:3px 8px;transform:translate(-50%,-125%);white-space:nowrap;display:none}
+.g-tip{position:absolute;pointer-events:none;background:var(--tbg);color:var(--tink);font-size:12px;border-radius:8px;padding:3px 8px;transform:translate(-50%,-125%);white-space:nowrap;display:none}
 
 /* 성장 타임라인 */
 .tl-adopt{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border:1px dashed var(--line2);border-radius:18px;padding:12px 14px;margin-bottom:16px;font-size:13.5px;color:var(--ink2)}
@@ -289,20 +289,30 @@ img.own{object-fit:cover;border-radius:22px;border:3px solid var(--white);box-sh
 /* 사육장 랙 */
 .rack-wrap{position:relative;padding:4px 2px 0}
 .rack{display:flex;flex-direction:column-reverse;gap:10px}
-.rrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.rrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;align-items:end}
+.bin.rk{height:auto;padding:22px 6px 8px}
+.drw{display:flex;align-items:center;gap:6px;height:34px;margin-top:5px;border-radius:9px;background:rgba(255,255,255,.62);padding:0 8px;position:relative;cursor:pointer;box-shadow:inset 0 -3px 0 rgba(0,0,0,.07);transition:transform .15s;min-width:0}
+.drw:first-of-type{margin-top:0}
+.drw:active{transform:translateX(5px)}
+.drw .hdl{width:14px;height:5px;border-radius:3px;background:rgba(0,0,0,.2);flex:none}
+.drw img{width:24px;height:24px;border-radius:50%;object-fit:cover;border:1.5px solid #fff;flex:none}
+.drw small{font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;color:#5e4a33}
+.drw .emp{color:rgba(0,0,0,.35)}
+.drw.me{box-shadow:inset 0 0 0 2px var(--accent)}
+.chips i.dot{display:inline-block;width:14px;height:14px;border-radius:50%;margin-right:6px;vertical-align:-2px;border:2px solid}
 .blk{grid-column:span var(--s);min-width:0;position:relative}
 .blk.anim{animation:drop .62s cubic-bezier(.25,1.45,.5,1) both;animation-delay:var(--d)}
-.bin{height:98px;border-radius:16px;background:var(--c);border:2px solid var(--cb);box-shadow:0 5px 0 var(--cb);padding:22px 6px 6px;position:relative;cursor:pointer;transition:transform .15s;display:block;width:100%;font:inherit;color:var(--ink);text-align:left}
+.bin{height:98px;border-radius:16px;background:var(--c);border:2px solid var(--cb);box-shadow:0 5px 0 var(--cb);padding:22px 6px 6px;position:relative;cursor:pointer;transition:transform .15s;display:block;width:100%;font:inherit;color:#5e4a33;text-align:left}
 .bin:active{transform:translateY(3px) scale(.97);box-shadow:0 2px 0 var(--cb)}
-.bin .lab{position:absolute;left:10px;right:24px;top:4px;font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--title)}
+.bin .lab{position:absolute;left:10px;right:24px;top:4px;font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#6f5840}
 .bin .lamp{position:absolute;right:8px;top:6px;width:9px;height:9px;border-radius:50%;background:#ffcf6b;box-shadow:0 0 0 3px rgba(255,207,107,.35),0 0 10px 3px rgba(255,190,80,.55);animation:glow 2.6s ease-in-out infinite}
 .bin .glass{height:100%;border-radius:11px;background:linear-gradient(160deg,rgba(255,255,255,.75),rgba(255,255,255,.4) 60%,rgba(255,255,255,.6));display:flex;align-items:flex-end;justify-content:center;gap:6px;padding:4px 4px 3px;overflow:hidden;position:relative}
 .bin .glass::after{content:"";position:absolute;left:0;right:0;bottom:0;height:9px;background:rgba(var(--shc),.18)}
 .ava{display:flex;flex-direction:column;align-items:center;min-width:0;z-index:1;animation:bob 2.8s ease-in-out infinite;animation-delay:var(--b)}
-.ava img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #fff;background:var(--soft);box-shadow:0 2px 6px rgba(var(--shc),.18)}
+.ava img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--white);background:var(--soft);box-shadow:0 2px 6px rgba(var(--shc),.18)}
 .ava small{font-size:10.5px;max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3}
 .ava.me img{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
-.bin .empty-t{align-self:center;font-size:12px;color:var(--ink2)}
+.bin .empty-t{align-self:center;font-size:12px;color:#a8977d}
 .rack.edit .bin{animation:wig .32s ease-in-out infinite alternate}
 .rack.edit .rrow .blk:nth-child(2n) .bin{animation-delay:-.16s}
 .rack.edit .bin .lamp{display:none}
@@ -338,7 +348,7 @@ nav.tabs button{border:0;background:none;display:flex;flex-direction:column;alig
 nav.tabs button .ic{font-size:26px}
 nav.tabs button[aria-selected="true"]{color:var(--accent-ink)}
 nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom:0;width:58px;height:3px;border-radius:3px;background:var(--accent)}
-.toast{position:fixed;left:50%;bottom:calc(100px + var(--safe-b));transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:12px;font-size:13.5px;z-index:40;display:none;max-width:90vw;text-align:center}
+.toast{position:fixed;left:50%;bottom:calc(100px + var(--safe-b));transform:translateX(-50%);background:var(--tbg);color:var(--tink);padding:9px 16px;border-radius:12px;font-size:13.5px;z-index:40;display:none;max-width:90vw;text-align:center}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 /* 키 작은 화면: 여백·그림을 줄여서 글자가 덜 작아지게 */
 @media (max-height:880px){
@@ -572,7 +582,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
   <div class="box" id="brand">
     <b style="color:var(--title)">앱 꾸미기</b>
     <div class="g2"><div><label class="f" for="sAppTitle">앱 이름 (홈 맨 위)</label><input class="inp" id="sAppTitle"></div><div><label class="f" for="sAppTag">작은 글자</label><input class="inp" id="sAppTag"></div></div>
-    <label class="f">대표 색</label><div class="sw" id="themeSw"></div>
+    <label class="f">대표 색</label><div class="chips" id="themeSw"></div>
     <label class="f">마크</label>
     <div class="g2"><label class="mini-btn" style="background:var(--white);border:1px solid var(--line)">마크 고르기<input type="file" id="markIn2" accept="image/*" class="sr"></label><button class="mini-btn" id="markDel" style="background:var(--white);border:1px solid var(--line)">마크 비우기</button></div>
     <p class="hint">홈 맨 위 동그라미를 눌러도 마크를 바꿀 수 있어요.</p>
@@ -653,7 +663,9 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
   <div class="g-head"><b style="color:var(--title)" id="eTitle">사육장 꾸미기</b><button class="mini-btn" id="eX" style="height:34px;background:var(--white);border:1px solid var(--line)">닫기</button></div>
   <div id="ePrev"></div>
   <label class="f" for="eName">이름</label><input class="inp" id="eName" maxlength="20">
+  <label class="f">종류</label><div class="chips" id="eKind"></div>
   <label class="f">크기 <span class="hint">(1자 ≈ 30cm)</span></label><div class="chips" id="eSize"></div>
+  <div id="eTierBox"><label class="f">렉 단 수 <span class="hint">(한 단에 1마리)</span></label><div class="stepper"><button type="button" id="eTm" aria-label="1단 빼기">−</button><b id="eTn"></b><button type="button" id="eTp" aria-label="1단 더하기">+</button></div></div>
   <label class="f">색</label><div class="sw" id="eColor"></div>
   <label class="f">여기 사는 친구</label><div class="chips" id="eWho"></div>
   <button class="mini-btn" id="eOk" style="margin-top:16px;width:100%;height:44px">저장하기</button>
@@ -1217,7 +1229,7 @@ function lineChart2(el, pts, o){
   const min = Math.min(o.min, ...vals), max = Math.max(o.max, ...vals);
   const step = (W-L-R)/Math.max(1,n-1), x = i => L + i*step, y = v => T + (max-v)*(H-T-B)/(max-min);
   let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.unit} 꺾은선 그래프">`;
-  if(o.lo!=null) s += `<rect x="${L}" y="${y(o.hi)}" width="${W-L-R}" height="${y(o.lo)-y(o.hi)}" fill="#eaf4e6" rx="3"/>`;
+  if(o.lo!=null) s += `<rect x="${L}" y="${y(o.hi)}" width="${W-L-R}" height="${y(o.lo)-y(o.hi)}" fill="${TV('--range')}" rx="3"/>`;
   [...new Set([o.lo, o.hi, Math.round(min), Math.round(max)].filter(v => v!=null))].forEach(tv =>
     s += `<line x1="${L}" x2="${W-R}" y1="${y(tv)}" y2="${y(tv)}" stroke="${TV('--line')}" stroke-width="1"/><text x="${L-5}" y="${y(tv)+3.5}" font-size="9.5" fill="${TV('--ink2')}" text-anchor="end">${tv}</text>`);
   const every = n<=7 ? 1 : n<=30 ? 5 : 15;
@@ -1381,20 +1393,26 @@ async function avaOf(id){ if(!(id in IMGC)) IMGC[id] = await imgOf(id); return I
 function rows(){ const out = []; let row = [], w = 0;   // 4자 한 칸에 왼쪽부터, 아래에서 위로
   ENC.forEach(e => { const sz = Math.min(4, Math.max(1, +e.size || 2)); if(w + sz > 4){ out.push(row); row = []; w = 0; } row.push(e); w += sz; });
   if(row.length) out.push(row); return out; }
+function binHTML(e, who, opt){
+  const sz = Math.min(4, Math.max(1, +e.size || 2)), st = `--c:${e.color};--cb:${cbOf(e.color)}`;
+  if(e.kind==='rack'){ const T = Math.min(10, Math.max(2, +e.tiers || 4)); let d = '';
+    for(let i=0;i<T;i++){ const a = who.find(x => (+x.slot||0)===i);
+      d += `<span class="drw${a && a.id===CUR ? ' me' : ''}" data-enc="${e.id}" data-a="${a ? a.id : ''}" role="button" aria-label="${i+1}단 ${a ? esc(nm(a)) : '빈 칸'}"><span class="hdl"></span>${a ? `${opt.edit ? `<i class="axd" data-adel="${a.id}" role="button" aria-label="${esc(nm(a))} 지우기" style="right:-6px;top:-6px">×</i>` : ''}<img data-ava="${a.id}" src="${BLANK}" alt=""><small>${esc(nm(a))}</small>` : '<small class="emp">빈 칸</small>'}</span>`; }
+    return `<div class="bin rk" data-enc="${e.id}" style="${st}" role="group" aria-label="${esc(e.name)}, 렉 ${T}단"><span class="lab">${esc(e.name)} · 렉 ${T}단</span><span class="lamp"></span>${d}</div>`; }
+  let inner = '';
+  for(const [j,a] of who.slice(0, sz*2).entries()) inner += `<span class="ava${a.id===CUR?' me':''}" style="--b:${(j*.37).toFixed(2)}s">${opt.edit ? `<i class="axd" data-adel="${a.id}" role="button" aria-label="${esc(nm(a))} 지우기">×</i>` : ''}<img data-ava="${a.id}" src="${BLANK}" alt="">${sz>1 ? `<small>${esc(nm(a))}</small>` : ''}</span>`;
+  if(who.length > sz*2) inner += `<span class="empty-t">+${who.length - sz*2}</span>`;
+  if(!who.length) inner = `<span class="empty-t">${sz>1 ? '비어 있어요' : '빈 곳'}</span>`;
+  return `<div class="bin" data-enc="${e.id}" style="${st}" role="button" aria-label="${esc(e.name)}, ${sz}자, ${who.map(nm).join(', ') || '비어 있음'}"><span class="lab">${esc(e.name)} · ${sz}자</span><span class="lamp"></span><span class="glass">${inner}</span></div>`;
+}
 async function renderRack(el, opt){
   if(!el) return; opt = opt || {};
-  const live = ANI.filter(a => encOf(a).id!=='none');
   let i = 0, h = `<div class="rack-wrap"><div class="rack${opt.edit ? ' edit' : ''}">`;
   for(const row of rows()){ h += '<div class="rrow">';
     for(const e of row){ const who = ANI.filter(a => encOf(a).id===e.id), sz = Math.min(4, Math.max(1, +e.size || 2));
       const anim = opt.anim==='all' || opt.anim===e.id;
-      let inner = '';
-      for(const [j,a] of who.slice(0, sz*2).entries()) inner += `<span class="ava${a.id===CUR?' me':''}" style="--b:${(j*.37).toFixed(2)}s">${opt.edit ? `<i class="axd" data-adel="${a.id}" role="button" aria-label="${esc(nm(a))} 지우기">×</i>` : ''}<img data-ava="${a.id}" src="${BLANK}" alt="">${sz>1 ? `<small>${esc(nm(a))}</small>` : ''}</span>`;
-      if(who.length > sz*2) inner += `<span class="empty-t">+${who.length - sz*2}</span>`;
-      if(!who.length) inner = `<span class="empty-t">${sz>1 ? '비어 있어요' : '빈 곳'}</span>`;
       const xd = opt.edit ? `<button class="xdel" data-del="${e.id}" aria-label="${esc(e.name)} 지우기">×</button>` : '';
-      h += `<div class="blk${anim?' anim':''}" style="--s:${sz};--d:${(anim && opt.anim==='all' ? i*.07 : 0).toFixed(2)}s"><button class="bin" data-enc="${e.id}" style="--c:${e.color};--cb:${cbOf(e.color)}" aria-label="${esc(e.name)}, ${sz}자, ${who.map(nm).join(', ') || '비어 있음'}">
-        <span class="lab">${esc(e.name)} · ${sz}자</span><span class="lamp"></span><span class="glass">${inner}</span></button>${xd}</div>`; i++; }
+      h += `<div class="blk${anim?' anim':''}" style="--s:${sz};--d:${(anim && opt.anim==='all' ? i*.07 : 0).toFixed(2)}s">${binHTML(e, who, opt)}${xd}</div>`; i++; }
     h += '</div>'; }
   h += '</div><div class="floor"></div></div>';
   const homeless = ANI.filter(a => encOf(a).id==='none');
@@ -1403,6 +1421,8 @@ async function renderRack(el, opt){
   el.innerHTML = h;
   el.querySelectorAll('[data-ava]').forEach(im => avaOf(im.dataset.ava).then(u => { im.src = u; }));
   el.querySelectorAll('.bin').forEach(b => b.onclick = () => tapEnc(b.dataset.enc, opt));
+  el.querySelectorAll('.drw').forEach(d => d.onclick = ev => { ev.stopPropagation();
+    if(opt.edit || !d.dataset.a) openEnc(d.dataset.enc); else openAnimal(d.dataset.a); });
   el.querySelectorAll('[data-adel]').forEach(b => b.onclick = ev => { ev.stopPropagation(); delAnimal(b.dataset.adel); });
   el.querySelectorAll('[data-del]').forEach(b => b.onclick = ev => { ev.stopPropagation(); delEnc(b.dataset.del, b.closest('.blk')); });
   el.querySelectorAll('[data-hl]').forEach(b => b.onclick = () => openAnimal(b.dataset.hl));
@@ -1436,32 +1456,46 @@ const ED = {id:null, size:2, color:COLORS[0][1], who:new Set()};
 function openEnc(id){
   const e = id ? ENC.find(x => x.id===id) : null;
   ED.id = id; ED.size = e ? (+e.size || 2) : 2; ED.color = e ? e.color : COLORS[ENC.length % COLORS.length][1];
-  ED.who = new Set(ANI.filter(a => e && encOf(a).id===e.id).map(a => a.id));
+  ED.kind = e && e.kind==='rack' ? 'rack' : 'tank'; ED.tiers = e ? (+e.tiers || 4) : 4;
+  ED.who = new Set(ANI.filter(a => e && encOf(a).id===e.id).sort((x,y) => (+x.slot||0) - (+y.slot||0)).map(a => a.id));
   $('#eTitle').textContent = e ? '사육장 꾸미기' : '새 사육장 쌓기';
   $('#eName').value = e ? e.name : `사육장 ${ENC.length+1}`;
   $('#eMore').style.display = e ? '' : 'none';
   renderEd(); $('#eSheet').classList.add('on');
 }
+function edEnc(){ return {id:ED.id || 'new', name:$('#eName').value || '사육장', size:ED.size, color:ED.color, kind:ED.kind, tiers:ED.tiers}; }
+function edWho(){ return [...ED.who].map((id,i) => Object.assign({}, A(id), {slot:i})); }
 function renderEd(){
-  $('#ePrev').innerHTML = `<div class="prev-blk" style="width:${ED.size*25}%"><div class="bin" style="--c:${ED.color};--cb:${cbOf(ED.color)};cursor:default"><span class="lab">${esc($('#eName').value || '사육장')} · ${ED.size}자</span><span class="lamp"></span><span class="glass">${[...ED.who].map((id,j) => `<span class="ava" style="--b:${j*.37}s"><img data-ava="${id}" src="${BLANK}" alt="">${ED.size>1?`<small>${esc(nm(A(id)))}</small>`:''}</span>`).join('') || '<span class="empty-t">비어 있어요</span>'}</span></div></div>`;
+  const rk = ED.kind==='rack';
+  $('#ePrev').innerHTML = `<div class="prev-blk" style="width:${ED.size*25}%">${binHTML(edEnc(), edWho(), {})}</div>`;
   $$('#ePrev [data-ava]').forEach(im => avaOf(im.dataset.ava).then(u => { im.src = u; }));
+  $('#eKind').innerHTML = [['tank','사육장'],['rack','렉 (여러 단)']].map(([k,t]) => `<button data-k="${k}" aria-pressed="${ED.kind===k}">${t}</button>`).join('');
+  $$('#eKind button').forEach(b => b.onclick = () => { ED.kind = b.dataset.k; if(ED.kind==='rack' && ED.who.size > ED.tiers) ED.tiers = Math.min(10, ED.who.size); renderEd(); });
+  $('#eTierBox').hidden = !rk; $('#eTn').textContent = `${ED.tiers}단`;
   $('#eSize').innerHTML = [1,2,3,4].map(n => `<button data-sz="${n}" aria-pressed="${ED.size===n}">${n}자 · ${n*30}cm</button>`).join('');
   $$('#eSize button').forEach(b => b.onclick = () => { ED.size = +b.dataset.sz; renderEd(); });
   $('#eColor').innerHTML = COLORS.map(([n,c,cb]) => `<button data-c="${c}" aria-label="${n}" aria-pressed="${ED.color===c}" style="--c:${c};--cb:${cb}"></button>`).join('');
   $$('#eColor button').forEach(b => b.onclick = () => { ED.color = b.dataset.c; renderEd(); });
-  $('#eWho').innerHTML = ANI.map(a => { const here = encOf(a), other = here.id!=='none' && here.id!==ED.id;
-    return `<button data-w="${a.id}" aria-pressed="${ED.who.has(a.id)}">${esc(nm(a))}${other && !ED.who.has(a.id) ? ` <small style="opacity:.6">· ${esc(here.name)}</small>` : ''}</button>`; }).join('');
-  $$('#eWho button').forEach(b => b.onclick = () => { const id = b.dataset.w; ED.who.has(id) ? ED.who.delete(id) : ED.who.add(id); renderEd(); });
+  const order = [...ED.who];
+  $('#eWho').innerHTML = ANI.map(a => { const here = encOf(a), other = here.id!=='none' && here.id!==ED.id, on = ED.who.has(a.id);
+    return `<button data-w="${a.id}" aria-pressed="${on}">${rk && on ? `${order.indexOf(a.id)+1}단 · ` : ''}${esc(nm(a))}${other && !on ? ` <small style="opacity:.6">· ${esc(here.name)}</small>` : ''}</button>`; }).join('');
+  $$('#eWho button').forEach(b => b.onclick = () => { const id = b.dataset.w;
+    if(ED.who.has(id)) ED.who.delete(id);
+    else { if(rk && ED.who.size >= ED.tiers){ toast(`렉이 ${ED.tiers}단이라 더 넣을 수 없어요. 단 수를 늘려 주세요`); return; } ED.who.add(id); }
+    renderEd(); });
 }
-$('#eName').oninput = () => { const l = $('#ePrev .lab'); if(l) l.textContent = `${$('#eName').value || '사육장'} · ${ED.size}자`; };
+$('#eTm').onclick = () => { if(ED.tiers <= Math.max(2, ED.who.size)){ toast(ED.who.size > 2 ? '사는 친구 수보다 적게 줄일 수 없어요' : '2단보다 적게 줄일 수 없어요'); return; } ED.tiers--; renderEd(); };
+$('#eTp').onclick = () => { if(ED.tiers >= 10) return; ED.tiers++; renderEd(); };
+$('#eName').oninput = () => { const l = $('#ePrev .lab'); if(l) l.textContent = `${$('#eName').value || '사육장'} · ${ED.kind==='rack' ? `렉 ${ED.tiers}단` : `${ED.size}자`}`; };
 $('#eX').onclick = () => $('#eSheet').classList.remove('on');
 $('#eOk').onclick = () => {
   const name = $('#eName').value.trim() || `사육장 ${ENC.length+1}`; let e = ED.id ? ENC.find(x => x.id===ED.id) : null, isNew = !e;
   if(!e){ e = {id:uid('k')}; ENC.push(e); }
-  Object.assign(e, {name, size:ED.size, color:ED.color});
-  ANI.forEach(a => { if(ED.who.has(a.id)) a.encId = e.id; else if(a.encId===e.id) a.encId = 'none'; });
+  Object.assign(e, {name, size:ED.size, color:ED.color, kind:ED.kind, tiers:ED.tiers});
+  const order = [...ED.who];
+  ANI.forEach(a => { if(ED.who.has(a.id)){ a.encId = e.id; a.slot = order.indexOf(a.id); } else if(a.encId===e.id){ a.encId = 'none'; delete a.slot; } });
   saveEnc(); saveAni(); $('#eSheet').classList.remove('on');
-  refreshRacks(isNew ? e.id : null); renderHome(); toast(isNew ? '사육장을 쌓았어요' : '사육장을 바꿨어요');
+  refreshRacks(isNew ? e.id : null); renderHome(); toast(isNew ? (ED.kind==='rack' ? '렉을 쌓았어요' : '사육장을 쌓았어요') : '사육장을 바꿨어요');
 };
 const moveEnc = d => { const i = ENC.findIndex(x => x.id===ED.id), j = i + d; if(i<0 || j<0 || j>=ENC.length) return; [ENC[i], ENC[j]] = [ENC[j], ENC[i]]; saveEnc(); $('#eSheet').classList.remove('on'); refreshRacks(ED.id); };
 $('#eUp').onclick = () => moveEnc(1); $('#eDown').onclick = () => moveEnc(-1);
@@ -1606,19 +1640,30 @@ async function applyBrand(){
   $('#markImg').hidden = !m; $('#markPh').hidden = !!m; if(m) $('#markImg').src = m; else $('#markImg').removeAttribute('src');
   refit();
 }
+const LT = {tbg:null, tink:'#fff', range:'#eaf4e6', dark:false};
+const DK = {tink:null, range:'rgba(130,200,140,.18)', dark:true};
 const THEMES = {
-  '노랑':  {bg:'#fdf6e6',card:'#fef9ef',white:'#fffdf8',white2:'#fdfcf5',soft:'#fbefd2',line:'#efe3cb',line2:'#e3cfa5',ink:'#5e4a33',title:'#6f5840',ink2:'#a8977d',muted:'#c3b499',deco:'#c9ab80',shc:'190,150,80', sel:'#ffe8a7',selInk:'#6b5320',btn:'#fde8a3',acc:'#f3c64f',accInk:'#e9b93a'},
-  '살구':  {bg:'#fdf1e8',card:'#fef7f1',white:'#fffaf6',white2:'#fdf7f2',soft:'#fbe2d1',line:'#f1dccb',line2:'#e6c3a8',ink:'#5e3f2e',title:'#70503e',ink2:'#ad8f7d',muted:'#c9ab98',deco:'#cf9f7f',shc:'200,130,80', sel:'#fdd9bd',selInk:'#74452a',btn:'#fbd5b8',acc:'#f2a873',accInk:'#e08a50'},
-  '분홍':  {bg:'#fcf0f1',card:'#fef6f7',white:'#fffafa',white2:'#fdf6f7',soft:'#f8dfe3',line:'#f0dade',line2:'#e3bcc4',ink:'#5c3a42',title:'#6e4a53',ink2:'#a98a91',muted:'#c7aab0',deco:'#cf9aa6',shc:'190,110,130', sel:'#f9d2da',selInk:'#7a3a46',btn:'#f7ccd5',acc:'#ec93a5',accInk:'#d9708a'},
-  '라벤더':{bg:'#f4f0fb',card:'#f9f6fd',white:'#fcfaff',white2:'#f8f5fc',soft:'#e8e0f6',line:'#e5ddf1',line2:'#cbbde6',ink:'#43385e',title:'#554870',ink2:'#8f86a8',muted:'#b3abc8',deco:'#a796cf',shc:'130,110,190', sel:'#ddd2f3',selInk:'#4b3a74',btn:'#d8ccf1',acc:'#a98ee0',accInk:'#8a6cd1'},
-  '하늘':  {bg:'#eff5fb',card:'#f6f9fd',white:'#fafcff',white2:'#f5f9fc',soft:'#dceaf6',line:'#dbe7f2',line2:'#b9cfe5',ink:'#344659',title:'#44596e',ink2:'#8496a8',muted:'#a9b8c7',deco:'#8fb0d0',shc:'90,130,180', sel:'#cfe3f6',selInk:'#2f4f6e',btn:'#c9dff4',acc:'#79aee0',accInk:'#4f8ccb'},
-  '민트':  {bg:'#eef7f2',card:'#f5fbf8',white:'#fafdfb',white2:'#f4faf6',soft:'#d9efe3',line:'#d8eadf',line2:'#b4d6c2',ink:'#33503f',title:'#43614f',ink2:'#839d8d',muted:'#a8c2b2',deco:'#86bea0',shc:'80,150,110', sel:'#c9ebd9',selInk:'#2f5e47',btn:'#c3e8d3',acc:'#6fc39a',accInk:'#4aa77b'}
+  '바나나':       {...LT, bg:'#fdf6e6',card:'#fef9ef',white:'#fffdf8',white2:'#fdfcf5',soft:'#fbefd2',line:'#efe3cb',line2:'#e3cfa5',ink:'#5e4a33',title:'#6f5840',ink2:'#a8977d',muted:'#c3b499',deco:'#c9ab80',shc:'190,150,80', sel:'#ffe8a7',selInk:'#6b5320',btn:'#fde8a3',acc:'#f3c64f',accInk:'#e9b93a'},
+  '노멀':         {...LT, bg:'#f5eee3',card:'#faf5ed',white:'#fdfaf5',white2:'#faf6ef',soft:'#eadbc3',line:'#e6d9c4',line2:'#cdb48f',ink:'#4a3826',title:'#5a4430',ink2:'#9a8670',muted:'#bba98f',deco:'#b08a5a',shc:'150,110,60', sel:'#e8cfa6',selInk:'#4a3218',btn:'#e4c99c',acc:'#b98552',accInk:'#9c6a3a'},
+  '오렌지 드림':  {...LT, bg:'#fdf1e8',card:'#fef7f1',white:'#fffaf6',white2:'#fdf7f2',soft:'#fbe2d1',line:'#f1dccb',line2:'#e6c3a8',ink:'#5e3f2e',title:'#70503e',ink2:'#ad8f7d',muted:'#c9ab98',deco:'#cf9f7f',shc:'200,130,80', sel:'#fdd9bd',selInk:'#74452a',btn:'#fbd5b8',acc:'#f2a873',accInk:'#e08a50'},
+  '코랄 글로우':  {...LT, bg:'#fcf0f1',card:'#fef6f7',white:'#fffafa',white2:'#fdf6f7',soft:'#f8dfe3',line:'#f0dade',line2:'#e3bcc4',ink:'#5c3a42',title:'#6e4a53',ink2:'#a98a91',muted:'#c7aab0',deco:'#cf9aa6',shc:'190,110,130', sel:'#f9d2da',selInk:'#7a3a46',btn:'#f7ccd5',acc:'#ec93a5',accInk:'#d9708a'},
+  '라벤더 알비노':{...LT, bg:'#f4f0fb',card:'#f9f6fd',white:'#fcfaff',white2:'#f8f5fc',soft:'#e8e0f6',line:'#e5ddf1',line2:'#cbbde6',ink:'#43385e',title:'#554870',ink2:'#8f86a8',muted:'#b3abc8',deco:'#a796cf',shc:'130,110,190', sel:'#ddd2f3',selInk:'#4b3a74',btn:'#d8ccf1',acc:'#a98ee0',accInk:'#8a6cd1'},
+  '블루아이 루시':{...LT, bg:'#eff5fb',card:'#f6f9fd',white:'#fafcff',white2:'#f5f9fc',soft:'#dceaf6',line:'#dbe7f2',line2:'#b9cfe5',ink:'#344659',title:'#44596e',ink2:'#8496a8',muted:'#a9b8c7',deco:'#8fb0d0',shc:'90,130,180', sel:'#cfe3f6',selInk:'#2f4f6e',btn:'#c9dff4',acc:'#79aee0',accInk:'#4f8ccb'},
+  '그린 트리':    {...LT, bg:'#eef7f2',card:'#f5fbf8',white:'#fafdfb',white2:'#f4faf6',soft:'#d9efe3',line:'#d8eadf',line2:'#b4d6c2',ink:'#33503f',title:'#43614f',ink2:'#839d8d',muted:'#a8c2b2',deco:'#86bea0',shc:'80,150,110', sel:'#c9ebd9',selInk:'#2f5e47',btn:'#c3e8d3',acc:'#6fc39a',accInk:'#4aa77b'},
+  '파이볼드':     {...LT, bg:'#f3f3f1',card:'#f9f9f8',white:'#fdfdfc',white2:'#f7f7f5',soft:'#e6e5e1',line:'#e2e1dc',line2:'#c4c2bb',ink:'#33322f',title:'#43413d',ink2:'#8c8a84',muted:'#b0aea8',deco:'#a19d93',shc:'80,80,70', sel:'#dcdad3',selInk:'#2f2e2b',btn:'#e3e1da',acc:'#6b6862',accInk:'#4a4844'},
+  '블랙':         {...DK, bg:'#181614',card:'#221f1b',white:'#2a2621',white2:'#26231f',soft:'#353028',line:'#39332b',line2:'#574d3f',ink:'#ece4d6',title:'#f5ecdc',ink2:'#a99d89',muted:'#7a705f',deco:'#c7a35a',shc:'0,0,0', sel:'#e2bd5c',selInk:'#211906',btn:'#4a3e27',acc:'#e2bd5c',accInk:'#f0cd6e', tbg:'#f5ecdc', tink:'#1b1814'},
+  '블랙 파스텔':  {...DK, bg:'#17181b',card:'#202226',white:'#272a2f',white2:'#23262a',soft:'#31343a',line:'#34373d',line2:'#4f535b',ink:'#e6e7ea',title:'#f1f2f5',ink2:'#9a9ea7',muted:'#6f737b',deco:'#a9b0c4',shc:'0,0,0', sel:'#b9c2dd',selInk:'#15171c',btn:'#3a3f4b',acc:'#aab6d8',accInk:'#c3cdeb', tbg:'#e6e7ea', tink:'#17181b'}
 };
-const TK = {bg:'--bg',card:'--card',white:'--white',white2:'--white2',soft:'--soft',line:'--line',line2:'--line2',ink:'--ink',title:'--title',ink2:'--ink2',muted:'--muted',deco:'--deco',shc:'--shc',sel:'--sel',selInk:'--sel-ink',btn:'--btn',acc:'--accent',accInk:'--accent-ink'};
-function applyTheme(redraw){ const name = THEMES[S.theme] ? S.theme : THEMES[CFG.color] ? CFG.color : '노랑', t = THEMES[name], r = document.documentElement.style;
+const OLDTH = {'노랑':'바나나','살구':'오렌지 드림','분홍':'코랄 글로우','라벤더':'라벤더 알비노','하늘':'블루아이 루시','민트':'그린 트리'};
+const TK = {bg:'--bg',card:'--card',white:'--white',white2:'--white2',soft:'--soft',line:'--line',line2:'--line2',ink:'--ink',title:'--title',ink2:'--ink2',muted:'--muted',deco:'--deco',shc:'--shc',sel:'--sel',selInk:'--sel-ink',btn:'--btn',acc:'--accent',accInk:'--accent-ink',tbg:'--tbg',tink:'--tink',range:'--range'};
+function applyTheme(redraw){
+  const pick = n => THEMES[n] ? n : THEMES[OLDTH[n]] ? OLDTH[n] : null;
+  const name = pick(S.theme) || pick(CFG.color) || '바나나', t = Object.assign({}, THEMES[name]), r = document.documentElement.style;
+  if(!t.tbg) t.tbg = t.ink;
   for(const k in TK) r.setProperty(TK[k], t[k]);
+  r.colorScheme = t.dark ? 'dark' : 'light'; document.documentElement.classList.toggle('dark', !!t.dark);
   const mt = document.querySelector('meta[name=theme-color]'); if(mt) mt.content = t.bg;
-  $('#themeSw').innerHTML = Object.entries(THEMES).map(([n, x]) => `<button data-th="${n}" aria-label="${n}" aria-pressed="${n===name}" style="--c:${x.btn};--cb:${x.acc}"></button>`).join('');
+  $('#themeSw').innerHTML = Object.entries(THEMES).map(([n, x]) => `<button data-th="${n}" aria-pressed="${n===name}"><i class="dot" style="background:${x.dark ? x.bg : x.btn};border-color:${x.acc}"></i>${n}</button>`).join('');
   $$('#themeSw button').forEach(b => b.onclick = () => { S.theme = b.dataset.th; LS.set('settings', S); applyTheme(true); toast(`대표 색: ${b.dataset.th}`); });
   if(redraw){ applyImg(); renderFamily(); } }
 const setMark = async f => { if(!f) return; try{ await IDB.put('mark', await shrinkTo(f, 400, 'image/png')); applyBrand(); toast('마크를 바꿨어요'); }catch(e){ toast('사진을 읽지 못했어요'); } };

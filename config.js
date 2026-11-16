@@ -5,5 +5,5 @@ window.APP_CONFIG = {
   tag: 'DAILY LOG',
   mark: 'img/logo.png',
   petImage: 'img/snake.png',
-  color: '노랑'
+  color: '바나나'
 };
