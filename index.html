@@ -289,6 +289,10 @@ img.own{object-fit:cover;border-radius:22px;border:3px solid #fffdf8;box-shadow:
 .bin .empty-t{align-self:center;font-size:12px;color:#a8977d}
 .rack.edit .bin{animation:wig .32s ease-in-out infinite alternate}
 .rack.edit .rrow .blk:nth-child(2n) .bin{animation-delay:-.16s}
+.rack.edit .bin .lamp{display:none}
+.blk .xdel{position:absolute;right:-7px;top:-8px;z-index:3;width:28px;height:28px;border-radius:50%;border:2px solid #fffdf8;background:#c9553f;color:#fff;font-size:17px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 6px rgba(120,60,30,.3);padding:0;animation:pop .25s ease-out}
+.blk.bye{animation:bye .38s ease-in forwards}
+@keyframes bye{0%{transform:none;opacity:1}30%{transform:scale(1.06) rotate(-2deg)}100%{transform:translateY(40px) scale(.5) rotate(8deg);opacity:0}}
 .floor{height:12px;border-radius:6px;margin:8px -2px 0;background:linear-gradient(#ead5b1,#d6b98a);box-shadow:0 3px 0 #c9a873}
 .add-blk{display:flex;align-items:center;justify-content:center;gap:6px;height:44px;border:2px dashed #e3d2b0;border-radius:14px;background:transparent;color:var(--ink2);font:inherit;font-size:14px;cursor:pointer;width:100%;margin-top:12px}
 .homeless{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12.5px;color:var(--ink2)}
@@ -612,7 +616,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
   <label class="f">색</label><div class="sw" id="eColor"></div>
   <label class="f">여기 사는 친구</label><div class="chips" id="eWho"></div>
   <button class="mini-btn" id="eOk" style="margin-top:16px;width:100%;height:44px">저장하기</button>
-  <div class="g3" style="margin-top:8px" id="eMore"><button class="mini-btn" id="eUp" style="background:var(--white);border:1px solid var(--line)">위로</button><button class="mini-btn" id="eDown" style="background:var(--white);border:1px solid var(--line)">아래로</button><button class="mini-btn" id="eDel" style="background:var(--white);border:1px solid var(--line);color:#b53a2c">빼기</button></div>
+  <div class="g3" style="margin-top:8px" id="eMore"><button class="mini-btn" id="eUp" style="background:var(--white);border:1px solid var(--line)">위로</button><button class="mini-btn" id="eDown" style="background:var(--white);border:1px solid var(--line)">아래로</button><button class="mini-btn" id="eDel" style="background:var(--white);border:1px solid var(--line);color:#b53a2c">지우기</button></div>
 </div></div>
 <div class="sheet" id="bSheet"><div class="in">
   <div class="g-head"><b style="color:var(--title)">여러 마리 한 번에 기록</b><button class="mini-btn" id="bX" style="height:34px;background:var(--white);border:1px solid var(--line)">닫기</button></div>
@@ -1194,8 +1198,9 @@ async function renderRack(el, opt){
       for(const [j,a] of who.slice(0, sz*2).entries()) inner += `<span class="ava${a.id===CUR?' me':''}" style="--b:${(j*.37).toFixed(2)}s"><img data-ava="${a.id}" src="img/snake.png" alt="">${sz>1 ? `<small>${esc(nm(a))}</small>` : ''}</span>`;
       if(who.length > sz*2) inner += `<span class="empty-t">+${who.length - sz*2}</span>`;
       if(!who.length) inner = `<span class="empty-t">${sz>1 ? '비어 있어요' : '빈 곳'}</span>`;
+      const xd = opt.edit ? `<button class="xdel" data-del="${e.id}" aria-label="${esc(e.name)} 지우기">×</button>` : '';
       h += `<div class="blk${anim?' anim':''}" style="--s:${sz};--d:${(anim && opt.anim==='all' ? i*.07 : 0).toFixed(2)}s"><button class="bin" data-enc="${e.id}" style="--c:${e.color};--cb:${cbOf(e.color)}" aria-label="${esc(e.name)}, ${sz}자, ${who.map(nm).join(', ') || '비어 있음'}">
-        <span class="lab">${esc(e.name)} · ${sz}자</span><span class="lamp"></span><span class="glass">${inner}</span></button></div>`; i++; }
+        <span class="lab">${esc(e.name)} · ${sz}자</span><span class="lamp"></span><span class="glass">${inner}</span></button>${xd}</div>`; i++; }
     h += '</div>'; }
   h += '</div><div class="floor"></div></div>';
   const homeless = ANI.filter(a => encOf(a).id==='none');
@@ -1204,6 +1209,7 @@ async function renderRack(el, opt){
   el.innerHTML = h;
   el.querySelectorAll('[data-ava]').forEach(im => avaOf(im.dataset.ava).then(u => { im.src = u; }));
   el.querySelectorAll('.bin').forEach(b => b.onclick = () => tapEnc(b.dataset.enc, opt));
+  el.querySelectorAll('[data-del]').forEach(b => b.onclick = ev => { ev.stopPropagation(); delEnc(b.dataset.del, b.closest('.blk')); });
   el.querySelectorAll('[data-hl]').forEach(b => b.onclick = () => openAnimal(b.dataset.hl));
   const ad = el.querySelector('[data-addenc]'); if(ad) ad.onclick = () => openEnc(null);
 }
@@ -1223,7 +1229,7 @@ function tapEnc(id, opt){
 function openRack(){ rackEdit = false; $('#rEdit').textContent = '꾸미기'; $('#rackHint').textContent = '사육장을 누르면 그 안에 사는 친구의 기록을 써요.'; $('#rackPick').innerHTML = '';
   $('#aSheet').classList.add('on'); renderRack($('#rackS'), {anim:'all'}); }
 $('#rEdit').onclick = () => { rackEdit = !rackEdit; $('#rEdit').textContent = rackEdit ? '다 했어요' : '꾸미기'; $('#rackPick').innerHTML = '';
-  $('#rackHint').textContent = rackEdit ? '사육장을 눌러 크기·색·사는 친구를 바꿔요.' : '사육장을 누르면 그 안에 사는 친구의 기록을 써요.';
+  $('#rackHint').textContent = rackEdit ? '사육장을 눌러 크기·색·사는 친구를 바꾸고, ×로 지워요.' : '사육장을 누르면 그 안에 사는 친구의 기록을 써요.';
   renderRack($('#rackS'), {edit:rackEdit}); };
 function renderFamily(){ renderRack($('#famList'), {pick:'#famPick'}); if(!$('#famPick')) $('#famList').insertAdjacentHTML('afterend', '<div id="famPick"></div>'); }
 function refreshRacks(anim){ IMGC[CUR] = undefined; delete IMGC[CUR];
@@ -1264,11 +1270,13 @@ $('#eOk').onclick = () => {
 };
 const moveEnc = d => { const i = ENC.findIndex(x => x.id===ED.id), j = i + d; if(i<0 || j<0 || j>=ENC.length) return; [ENC[i], ENC[j]] = [ENC[j], ENC[i]]; saveEnc(); $('#eSheet').classList.remove('on'); refreshRacks(ED.id); };
 $('#eUp').onclick = () => moveEnc(1); $('#eDown').onclick = () => moveEnc(-1);
-$('#eDel').onclick = () => { const e = ENC.find(x => x.id===ED.id); if(!e) return;
+function delEnc(id, blkEl){ const e = ENC.find(x => x.id===id); if(!e) return;
   const n = ANI.filter(a => a.encId===e.id).length;
-  if(!confirm(n ? `${e.name}을(를) 뺄까요? 사는 친구 ${n}마리는 '사육장 없음'이 돼요. 이 사육장의 온도·습도 기록은 지워져요.` : `${e.name}을(를) 뺄까요?`)) return;
-  ANI.forEach(a => { if(a.encId===e.id) a.encId = 'none'; }); ENC = ENC.filter(x => x.id!==e.id); LS.del('env:'+e.id);
-  saveEnc(); saveAni(); $('#eSheet').classList.remove('on'); refreshRacks(); renderHome(); toast('사육장을 뺐어요'); };
+  if(!confirm(n ? `${e.name}을(를) 지울까요?\n사는 친구 ${n}마리는 '사육장 없음'이 되고, 이 사육장의 온도·습도 기록도 지워져요.` : `${e.name}을(를) 지울까요?`)) return;
+  const done = () => { ANI.forEach(a => { if(a.encId===e.id) a.encId = 'none'; }); ENC = ENC.filter(x => x.id!==e.id); LS.del('env:'+e.id); delete ENVC[e.id];
+    saveEnc(); saveAni(); $('#eSheet').classList.remove('on'); refreshRacks(); renderHome(); toast('사육장을 지웠어요'); };
+  if(blkEl){ blkEl.classList.remove('anim'); blkEl.classList.add('bye'); setTimeout(done, 380); } else done(); }
+$('#eDel').onclick = () => delEnc(ED.id);
 $('#addAnimal').onclick = addAnimal; $('#aAdd').onclick = addAnimal;
 $('#addEnc').onclick = () => { openRack(); $('#rEdit').click(); };
 $('#aDel').onclick = async () => {
