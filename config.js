@@ -4,5 +4,6 @@ window.APP_CONFIG = {
   title: 'BALL PYTHON',
   tag: 'DAILY LOG',
   mark: 'img/logo.png',
-  petImage: 'img/snake.png'
+  petImage: 'img/snake.png',
+  color: '노랑'
 };
