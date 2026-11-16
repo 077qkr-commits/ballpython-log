@@ -79,7 +79,24 @@ img.h-snake.ph{cursor:pointer}
 .h-tile .v{font-size:16px;display:flex;align-items:center;gap:6px;white-space:nowrap}
 .h-tile .s{font-size:10.5px;color:var(--ink2);white-space:nowrap;margin-top:1px}
 .h-tile .s.due{color:#d9822b;font-weight:700}
-.h-tile .v i{width:12px;height:12px;border-radius:50%;border:1.6px solid currentColor;display:inline-block}
+.h-tile .v i{width:12px;height:12px;border-radius:50%;border:1.6px solid currentColor;display:inline-block;flex:none;position:relative}
+.h-tile{transition:background .25s,border-color .25s}
+.h-tile .v b{font-weight:700}
+.h-tile.on{background:var(--sel);border-color:var(--accent);box-shadow:0 3px 10px rgba(var(--shc),.18)}
+.h-tile.on .ic,.h-tile.on .k,.h-tile.on .s{color:var(--sel-ink)}
+.h-tile.on .v{color:var(--sel-ink);font-weight:700;font-size:17px}
+.h-tile.on .v i{width:16px;height:16px;border:0;background:var(--accent)}
+.h-tile.on .v i::after{content:"";position:absolute;left:5px;top:2.5px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.h-tile.no .v{color:#c9553f;font-weight:700}
+.h-tile.ok{background:#e7f4ea;border-color:#9fd0ad}
+.h-tile.ok .ic,.h-tile.ok .s{color:#3f8f5a}
+.h-tile.hi{background:#fdece2;border-color:#f0b48c}
+.h-tile.hi .ic,.h-tile.hi .s{color:#c8682a}
+.h-tile.lo{background:#e5eff9;border-color:#a3c4e6}
+.h-tile.lo .ic,.h-tile.lo .s{color:#3c78b5}
+.h-tile.ok .v,.h-tile.hi .v,.h-tile.lo .v{font-size:17px;font-weight:700;color:#4a3a28}
+.h-tile.ok .k,.h-tile.hi .k,.h-tile.lo .k{color:#7a6a55}
+.h-tile .s b{font-weight:700}
 .h-cta{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;height:48px;margin-top:22px;border:0;border-radius:999px;
   background:var(--btn);color:var(--ink);font-size:16px;cursor:pointer;box-shadow:0 4px 12px rgba(var(--shc),.25)}
 .h-cta .ic{font-size:22px}
@@ -442,10 +459,10 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
     <div class="h-div">최근 체중</div>
     <button class="h-weight" id="hWeight" aria-label="체중 입력"></button>
     <div class="h-tiles">
-      <button class="h-tile" data-go="feed"><svg class="ic"><use href="#u-fork"/></svg><div style="min-width:0"><div class="k">급여 여부</div><div class="v" id="tFeed"></div><div class="s" id="tFeedNext"></div></div></button>
-      <button class="h-tile" data-go="poop"><svg class="ic"><use href="#u-drop"/></svg><div><div class="k">배변 여부</div><div class="v" id="tPoop"></div></div></button>
-      <button class="h-tile" data-go="env"><svg class="ic"><use href="#u-thermo"/></svg><div><div class="k">온도 (핫 / 쿨)</div><div class="v" id="tTemp"></div></div></button>
-      <button class="h-tile" data-go="env"><svg class="ic"><use href="#u-drop"/></svg><div><div class="k">습도</div><div class="v" id="tHum"></div></div></button>
+      <button class="h-tile" id="tileFeed" data-go="feed"><svg class="ic"><use href="#u-fork"/></svg><div style="min-width:0"><div class="k">급여 여부</div><div class="v" id="tFeed"></div><div class="s" id="tFeedNext"></div></div></button>
+      <button class="h-tile" id="tilePoop" data-go="poop"><svg class="ic"><use href="#u-drop"/></svg><div><div class="k">배변 여부</div><div class="v" id="tPoop"></div></div></button>
+      <button class="h-tile" id="tileTemp" data-go="env"><svg class="ic"><use href="#u-thermo"/></svg><div style="min-width:0"><div class="k">온도 (핫 / 쿨)</div><div class="v" id="tTemp"></div><div class="s" id="tTempS"></div></div></button>
+      <button class="h-tile" id="tileHum" data-go="env"><svg class="ic"><use href="#u-drop"/></svg><div style="min-width:0"><div class="k">습도</div><div class="v" id="tHum"></div><div class="s" id="tHumS"></div></div></button>
     </div>
   </div>
   <button class="h-cta" id="cta"><svg class="ic"><use href="#u-plus"/></svg>오늘의 기록 추가하기</button>
@@ -976,10 +993,18 @@ function renderHome(){
   $('#hWeight').innerHTML = w ? `<b>${w.cur}</b><small>g</small>${w.prev!=null && w.cur>w.prev ? '<svg class="ic tr"><use href="#u-trend"/></svg>' : ''}`
                               : `<b style="font-size:17px;font-weight:500;color:var(--ink2)">눌러서 체중을 기록하세요</b>`;
   $('#tFeed').innerHTML = `<i></i>${e && e.fed!=null ? feedWord(e) : '—'}`;
+  $('#tileFeed').classList.toggle('on', !!(e && e.fed===true)); $('#tileFeed').classList.toggle('no', !!(e && e.fed===false && e.food && e.food.refused));
   const fi = feedInfo(d); $('#tFeedNext').textContent = fi.text; $('#tFeedNext').classList.toggle('due', fi.due);
   $('#tPoop').innerHTML = `<i></i>${e && e.poop!=null ? (e.poop?'완료':'없음') : '—'}`;
   $('#tTemp').textContent = e && (e.hot!=null || e.cool!=null) ? `${e.hot ?? '—'}° / ${e.cool ?? '—'}°` : '—';
   $('#tHum').textContent = e && e.hum!=null ? `${e.hum}%` : '—';
+  $('#tilePoop').classList.toggle('on', !!(e && e.poop===true));
+  const r3 = R3(), lv = (v, r) => v==null || r[0]==null ? null : v < r[0] ? 'lo' : v > r[1] ? 'hi' : 'ok', word = {ok:'적정', lo:'낮음', hi:'높음'};
+  const lh = lv(e && e.hot, r3.hot), lc = lv(e && e.cool, r3.cool), lm = lv(e && e.hum, r3.hum);
+  const worst = [lh, lc].includes('hi') ? 'hi' : [lh, lc].includes('lo') ? 'lo' : (lh || lc) ? 'ok' : null;
+  ['ok','hi','lo'].forEach(c => { $('#tileTemp').classList.toggle(c, worst===c); $('#tileHum').classList.toggle(c, lm===c); });
+  $('#tTempS').innerHTML = lh || lc ? `핫 <b>${lh ? word[lh] : '—'}</b> · 쿨 <b>${lc ? word[lc] : '—'}</b>` : '';
+  $('#tHumS').innerHTML = lm ? `<b>${word[lm]}</b> · ${rg(r3.hum)}%` : '';
   $('#hPet').textContent = nm(P());
 }
 
