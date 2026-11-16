@@ -22,6 +22,7 @@
   --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
 html{background:var(--bg);overflow-x:hidden;overflow-x:clip;overscroll-behavior-x:none}
 body{margin:0;color:var(--ink);background:var(--bg);min-height:100vh;overflow-x:hidden;overflow-x:clip;overscroll-behavior-x:none;touch-action:pan-y;word-break:keep-all;overflow-wrap:anywhere;
   font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR",system-ui,sans-serif;
@@ -88,7 +89,10 @@ img.h-snake.ph{cursor:pointer}
 .r-head::before{content:"";position:absolute;left:-60px;right:-60px;top:-80px;height:360px;z-index:0;
   background:radial-gradient(140% 70% at 85% 30%, #fbefd2 0 45%, transparent 45.3%);pointer-events:none}
 .circle{width:42px;height:42px;border-radius:50%;background:var(--white);border:0;box-shadow:0 3px 10px rgba(180,140,70,.18);display:grid;place-items:center;cursor:pointer;color:var(--ink);font-size:20px;position:absolute;z-index:3}
-.r-back{left:0;top:10px} .r-calb{right:0;top:10px}
+.r-back{left:0;top:10px} .r-calb{right:0;top:10px} .r-stat{right:52px;top:10px}
+.g-sum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px}
+.g-sum>div{background:#fffdf8;border:1px solid var(--line);border-radius:14px;padding:8px 6px;text-align:center;min-width:0}
+.g-sum span{display:block;font-size:11.5px;color:var(--ink2)}.g-sum b{display:block;font-size:16px;margin-top:2px}.g-sum small{display:block;font-size:11px;color:var(--ink2)}
 .r-head h2{position:absolute;left:4px;top:96px;margin:0;font-size:29px;font-weight:700;letter-spacing:2px;color:var(--title);z-index:2}
 .r-head p{position:absolute;left:4px;top:150px;margin:0;font-size:13px;color:var(--ink2);line-height:1.65;z-index:2}
 .r-snake{pointer-events:none;position:absolute;right:-12px;top:52px;width:262px;aspect-ratio:545/340;z-index:1}
@@ -369,6 +373,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
   <symbol id="u-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="u-menu" viewBox="0 0 24 24"><path d="M4 6.5h16M4 12h16M4 17.5h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
   <symbol id="u-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M10.3 3h3.4l.5 2.4 1.8.8 2.1-1.3 2.4 2.4-1.3 2.1.8 1.8 2.4.5v3.4l-2.4.5-.8 1.8 1.3 2.1-2.4 2.4-2.1-1.3-1.8.8-.5 2.4h-3.4l-.5-2.4-1.8-.8-2.1 1.3-2.4-2.4 1.3-2.1-.8-1.8L3 13.7v-3.4l2.4-.5.8-1.8L4.9 5.9l2.4-2.4 2.1 1.3 1.8-.8z"/><circle cx="12" cy="12" r="3.2"/></g></symbol>
+  <symbol id="u-chart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><rect x="5.5" y="12" width="3" height="5.5" rx="1"/><rect x="10.5" y="7" width="3" height="10.5" rx="1"/><rect x="15.5" y="10" width="3" height="7.5" rx="1"/></g></symbol>
   <symbol id="u-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
   <symbol id="u-save" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 6a2 2 0 0 1 2-2h10l4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></g></symbol>
   <symbol id="u-trend" viewBox="0 0 24 24"><path d="M3 16l5-5 4 3 7-7M14 6h5v5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -441,6 +446,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
   <div class="r-head">
     <button class="circle r-back" id="back" aria-label="뒤로"><svg class="ic"><use href="#u-back"/></svg></button>
     <button class="circle r-calb" id="calBtn" aria-label="달력으로 보기"><svg class="ic"><use href="#u-cal"/></svg></button>
+    <button class="circle r-stat" id="statBtn" aria-label="통계 보기"><svg class="ic"><use href="#u-chart"/></svg></button>
     <h2 id="rTitle">일일 기록</h2>
     <p id="rSub">오늘도 우리 뱀의<br>건강을 체크해요!</p>
     <img class="r-snake pimg" alt="">
@@ -616,11 +622,12 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
   <div class="g2" style="margin-top:10px"><button class="mini-btn" id="wOk">저장</button><button class="mini-btn" id="wNo" style="background:var(--white);border:1px solid var(--line)">닫기</button></div>
 </div></div>
 <div class="sheet gsheet" id="gSheet"><div class="in">
-  <div class="g-head"><b>그래프</b><button class="mini-btn" id="gX" style="height:34px;background:var(--white);border:1px solid var(--line)">닫기</button></div>
+  <div class="g-head"><b id="gTitle">그래프</b><button class="mini-btn" id="gX" style="height:34px;background:var(--white);border:1px solid var(--line)">닫기</button></div>
   <div class="g-seg"><button data-p="7" aria-pressed="true">7일</button><button data-p="30" aria-pressed="false">30일</button><button data-p="90" aria-pressed="false">90일</button></div>
-  <div class="g-card"><div class="t">핫존<small id="glHot"></small></div><div class="g-stats" id="gsHot"></div><div class="g-ch" id="gcHot"></div></div>
-  <div class="g-card"><div class="t">쿨존<small id="glCool"></small></div><div class="g-stats" id="gsCool"></div><div class="g-ch" id="gcCool"></div></div>
-  <div class="g-card"><div class="t">습도<small id="glH"></small></div><div class="g-stats" id="gsH"></div><div class="g-ch" id="gcH"></div></div>
+  <div class="g-card" id="gSumCard"><div class="t">기록 통계<small id="gSumSub"></small></div><div class="g-sum" id="gSum"></div></div>
+  <div class="g-card" data-env><div class="t">핫존<small id="glHot"></small></div><div class="g-stats" id="gsHot"></div><div class="g-ch" id="gcHot"></div></div>
+  <div class="g-card" data-env><div class="t">쿨존<small id="glCool"></small></div><div class="g-stats" id="gsCool"></div><div class="g-ch" id="gcCool"></div></div>
+  <div class="g-card" data-env><div class="t">습도<small id="glH"></small></div><div class="g-stats" id="gsH"></div><div class="g-ch" id="gcH"></div></div>
   <div class="g-card" id="gWcard"><div class="t">체중<small>잰 날만 이어서 그려요</small></div><div class="g-stats" id="gsW"></div><div class="g-ch" id="gcW"></div></div>
 </div></div>
 <div class="lb" id="lb"><img id="lbImg" alt=""><span id="lbTx" style="text-align:center"></span><div class="row"><button class="mini-btn" id="lbEdit">날짜·메모 고치기</button><button class="mini-btn" id="lbDel" style="background:#fff;color:#b53a2c">빼기</button><button class="mini-btn" id="lbX" style="background:#fff">닫기</button></div></div>
@@ -1154,9 +1161,32 @@ $('#lbDel').onclick = () => { const it = lbCur, e = getE(it.d); if(!e) return;
 
 /* ================= 온습도 그래프 ================= */
 let gPeriod = 7;
-function openGraph(){ $('#gSheet').classList.add('on'); drawGraphs(); }
+let gMode = 'all';
+function openGraph(mode){ gMode = mode || 'all';
+  $('#gTitle').textContent = {env:'온도 · 습도', weight:'체중', all:`${nm(P())} 통계`}[gMode];
+  $$('#gSheet [data-env]').forEach(c => c.hidden = gMode==='weight');
+  $('#gWcard').hidden = gMode==='env'; $('#gSumCard').hidden = gMode!=='all';
+  $('#gSheet .in').scrollTop = 0; $('#gSheet').classList.add('on'); drawGraphs(); }
+function drawSum(days){
+  const from = days[0], to = days[days.length-1], V = Object.values(INDEX), inR = d => d && d>=from && d<=to;
+  const fed = V.filter(v => v.fed===true && inR(v.feedDate || v.date)), ref = V.filter(v => v.food && v.food.refused && inR(v.date));
+  const g = fed.reduce((a,v) => a + (v.food && v.food.g!=null ? v.food.g * (v.food.n||1) : 0), 0);
+  const poo = V.filter(v => v.poop===true && inR(v.poopDate || v.date)).length;
+  const fd = Object.values(INDEX).filter(v => v.fed===true).map(v => v.feedDate || v.date).sort(), gaps = fd.slice(1).map((x,i) => Math.round((parseD(x)-parseD(fd[i]))/864e5));
+  const gap = gaps.length ? (gaps.reduce((a,b)=>a+b,0)/gaps.length).toFixed(1) : null, si = shedInfo(to);
+  const sheds = V.filter(v => v.shed==='done' && inR(v.shedDate || v.date)).length;
+  $('#gSumSub').textContent = `${md(from)}~${md(to)}`;
+  $('#gSum').innerHTML = [
+    ['급여', `${fed.length}번`, g ? `먹이 ${+g.toFixed(1)}g` : ' '],
+    ['거부', `${ref.length}번`, ' '],
+    ['평균 급여 간격', gap ? `${gap}일` : '—', '전체 기록 기준'],
+    ['배변', `${poo}번`, ' '],
+    ['탈피', `${sheds}번`, si.avg ? `평균 ${si.avg}일 주기` : ' '],
+    ['급여 대비 배변', fed.length ? `${Math.round(poo / fed.length * 100)}%` : '—', ' ']
+  ].map(([k,v,sm]) => `<div><span>${k}</span><b>${v}</b><small>${sm}</small></div>`).join(''); }
 function drawGraphs(){
   const end = homeDate, days = []; for(let i=gPeriod-1;i>=0;i--) days.push(addD(end, -i));
+  if(gMode==='all') drawSum(days);
   const PT = k => days.map(d => ({d, v: IX(d)?.[k] ?? null}));
   const Ht = PT('hot'), C = PT('cool'), H = PT('hum');
   const r = R3(), lab = (x, u) => x[0]!=null ? `음영 = 적정 ${rg(x)}${u}` : '적정 범위 없음 (프로필에서 넣을 수 있어요)';
@@ -1205,7 +1235,8 @@ function lineChart2(el, pts, o){
   el.addEventListener('pointerleave', () => tip.style.display = 'none');
 }
 $('#gX').onclick = () => $('#gSheet').classList.remove('on');
-$('#wGraph').onclick = () => { $('#wSheet').classList.remove('on'); gPeriod = 90; $$('.g-seg button').forEach(x => x.setAttribute('aria-pressed', x.dataset.p==='90')); openGraph(); setTimeout(() => $('#gWcard').scrollIntoView({behavior:'smooth', block:'start'}), 80); };
+$('#wGraph').onclick = () => { $('#wSheet').classList.remove('on'); gPeriod = 90; $$('.g-seg button').forEach(x => x.setAttribute('aria-pressed', x.dataset.p==='90')); openGraph('weight'); };
+$('#statBtn').onclick = () => { gPeriod = 30; $$('.g-seg button').forEach(x => x.setAttribute('aria-pressed', x.dataset.p==='30')); openGraph('all'); };
 $$('.g-seg button').forEach(b => b.onclick = () => { gPeriod = +b.dataset.p; $$('.g-seg button').forEach(x => x.setAttribute('aria-pressed', x===b)); drawGraphs(); });
 
 /* ================= 한 화면 맞춤 ================= */
@@ -1524,7 +1555,7 @@ $('#bkIn').onchange = async ev => { const f = ev.target.files[0]; ev.target.valu
 $$('nav.tabs button').forEach(b => b.onclick = () => { if(b.dataset.v==='v-log') goLog(entry ? entry.date : today()); else go(b.dataset.v); });
 $('#hDateIn').onchange = e => { if(e.target.value){ homeDate = e.target.value; renderHome(); } };
 $('#cta').onclick = () => goLog(homeDate);
-$$('.h-tile').forEach(t => t.onclick = () => t.dataset.go==='env' ? openGraph() : goLog(homeDate, t.dataset.go));
+$$('.h-tile').forEach(t => t.onclick = () => t.dataset.go==='env' ? openGraph('env') : goLog(homeDate, t.dataset.go));
 $('#hWeight').onclick = () => { $('#wDate').value = homeDate; const e = getE(homeDate); $('#wVal').value = e && e.weight!=null ? e.weight : ''; $('#wSheet').classList.add('on'); setTimeout(() => $('#wVal').focus(), 50); };
 $('#wNo').onclick = () => $('#wSheet').classList.remove('on');
 $('#wOk').onclick = () => { const d = $('#wDate').value || homeDate, e = getE(d) || blank(d); e.weight = num($('#wVal').value); putE(e); if(entry && entry.date===d) entry.weight = e.weight; $('#wSheet').classList.remove('on'); renderHome(); toast('체중을 저장했어요'); };
