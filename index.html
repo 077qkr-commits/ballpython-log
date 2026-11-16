@@ -12,7 +12,8 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="icon-180.png">
-<title>볼파이톤 일기</title>
+<title>뱀 일기</title>
+<script src="config.js"></script>
 <style>
 :root{
   --bg:#fdf6e6; --card:#fef9ef; --white:#fffdf7; --ink:#5e4a33; --title:#6f5840; --ink2:#a8977d; --muted:#c3b499;
@@ -45,7 +46,13 @@ section.spread{display:flex!important;flex-direction:column;justify-content:spac
 .h-top button{border:0;background:none;padding:6px;cursor:pointer;color:var(--ink);font-size:30px;line-height:0}
 .h-logo{text-align:center;margin-top:30px;position:relative}
 .h-logo .ring{width:124px;height:124px;margin:0 auto;position:relative}
-.h-logo .ring img{width:124px;height:124px;display:block}
+.h-logo .ring img{width:124px;height:124px;display:block;object-fit:contain}
+.h-logo .ring.mark{border:0;background:none;padding:0;cursor:pointer;display:block}
+#markPh{position:absolute;inset:0;border-radius:50%;border:2px dashed #e3cfa5;color:#c9ab80;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:30px;line-height:1}
+#markPh[hidden],.h-logo .ring img[hidden]{display:none}
+#markPh small{font-size:11px;margin-top:4px;letter-spacing:.1em}
+.h-logo h1{overflow-wrap:anywhere}
+img.h-snake.ph{cursor:pointer}
 .h-logo h1{margin:14px 0 0;font-size:21px;font-weight:500;letter-spacing:.5em;padding-left:.5em;color:var(--title)}
 .h-logo .tag{margin-top:6px;font-size:11px;letter-spacing:.32em;padding-left:.32em;color:var(--ink2);display:flex;justify-content:center;align-items:center;gap:8px}
 .h-logo .tag::before,.h-logo .tag::after{content:"";width:16px;height:1px;background:var(--ink2)}
@@ -284,7 +291,6 @@ img.own{object-fit:cover;border-radius:22px;border:3px solid #fffdf8;box-shadow:
 .ava{display:flex;flex-direction:column;align-items:center;min-width:0;z-index:1;animation:bob 2.8s ease-in-out infinite;animation-delay:var(--b)}
 .ava img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #fff;background:#fbefd2;box-shadow:0 2px 6px rgba(120,90,40,.18)}
 .ava small{font-size:10.5px;max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3}
-.ava img[src$="snake.png"],.alist img[src$="snake.png"],.homeless img[src$="snake.png"]{object-position:20% 50%}
 .ava.me img{border-color:#f3c64f;box-shadow:0 0 0 2px #f3c64f}
 .bin .empty-t{align-self:center;font-size:12px;color:#a8977d}
 .rack.edit .bin{animation:wig .32s ease-in-out infinite alternate}
@@ -394,9 +400,10 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
 <!-- ================= 홈 ================= -->
 <section class="view on" id="v-home">
   <div class="h-logo">
-    <div class="ring"><img src="img/logo.png" alt=""></div>
-    <h1 id="hSpecies">BALL PYTHON</h1>
-    <div class="tag">DAILY LOG</div>
+    <button class="ring mark" id="markBtn" aria-label="마크 바꾸기"><img id="markImg" alt="" hidden><span id="markPh">+<small>마크</small></span></button>
+    <input type="file" id="markIn" accept="image/*" class="sr">
+    <h1 id="hTitle"></h1>
+    <div class="tag" id="hTag"></div>
   </div>
   <div class="h-arc"></div>
   <svg class="sp" style="right:26px;top:226px;width:22px;height:22px;color:#e6cf93"><use href="#u-spark"/></svg>
@@ -410,7 +417,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
     <svg class="sp" style="left:36px;top:58px;width:22px;height:22px"><use href="#u-spark"/></svg>
     <svg class="sp" style="left:22px;top:92px;width:12px;height:12px"><use href="#u-spark"/></svg>
     <svg class="sp" style="right:52px;top:36px;width:18px;height:18px"><use href="#u-spark"/></svg>
-    <img class="h-snake pimg" src="img/snake.png" alt="">
+    <img class="h-snake pimg" alt="">
     <div class="h-div">최근 체중</div>
     <button class="h-weight" id="hWeight" aria-label="체중 입력"></button>
     <div class="h-tiles">
@@ -430,7 +437,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
     <button class="circle r-calb" id="calBtn" aria-label="달력으로 보기"><svg class="ic"><use href="#u-cal"/></svg></button>
     <h2 id="rTitle">일일 기록</h2>
     <p id="rSub">오늘도 우리 뱀의<br>건강을 체크해요!</p>
-    <img class="r-snake pimg" src="img/snake.png" alt="">
+    <img class="r-snake pimg" alt="">
   </div>
 
   <div id="form" style="position:relative;z-index:2">
@@ -498,7 +505,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
 <section class="view" id="v-info">
   <div class="v-title">정보</div>
   <div class="box" id="profile">
-    <div class="pf-top"><img class="pimg" src="img/snake.png" alt=""><div style="min-width:0"><b id="pfName">우리 뱀</b><div class="hint" id="pfSub"></div></div></div>
+    <div class="pf-top"><img class="pimg" alt=""><div style="min-width:0"><b id="pfName">우리 뱀</b><div class="hint" id="pfSub"></div></div></div>
     <div class="pf-stats" id="pfStats"></div>
     <details id="pfEdit"><summary>프로필 고치기</summary>
       <label class="f">사진</label>
@@ -548,6 +555,13 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
       <button class="mini-btn" id="vAdd" style="margin-top:8px;width:100%">병원 추가</button>
       <p class="hint">가기 전에 뱀 진료가 되는지 전화로 확인하세요.</p>
     </details>
+  </div>
+  <div class="box" id="brand">
+    <b style="color:var(--title)">앱 꾸미기</b>
+    <div class="g2"><div><label class="f" for="sAppTitle">앱 이름 (홈 맨 위)</label><input class="inp" id="sAppTitle"></div><div><label class="f" for="sAppTag">작은 글자</label><input class="inp" id="sAppTag"></div></div>
+    <label class="f">마크</label>
+    <div class="g2"><label class="mini-btn" style="background:var(--white);border:1px solid var(--line)">마크 고르기<input type="file" id="markIn2" accept="image/*" class="sr"></label><button class="mini-btn" id="markDel" style="background:var(--white);border:1px solid var(--line)">마크 비우기</button></div>
+    <p class="hint">홈 맨 위 동그라미를 눌러도 마크를 바꿀 수 있어요.</p>
   </div>
   <div class="box" id="backup">
     <b style="color:var(--title)">백업</b>
@@ -697,6 +711,8 @@ ENC.forEach((e,i) => { if(!e.size) e.size = 2; if(!e.color) e.color = COLORS[i %
 const cbOf = c => (COLORS.find(x => x[1]===c) || COLORS[0])[2];
 if(!ANI.length){ ANI = [{id:'a1', encId:ENC[0].id, species:'ball', name:''}]; LS.set('animals', ANI); }
 if(!ANI.find(a => a.id===CUR)) CUR = ANI[0].id;
+{ const lastRec = ANI.filter(a => a.lastAt).sort((x,y) => y.lastAt - x.lastAt)[0];   // 앱을 열면 가장 최근에 기록한 뱀으로
+  if(lastRec){ CUR = lastRec.id; LS.set('cur', CUR); } }
 const A = id => ANI.find(a => a.id===(id||CUR)), P = () => A(CUR);
 const NOENC = {id:'none', name:'사육장 없음'};
 const encOf = a => ENC.find(e => e.id===a.encId) || NOENC;
@@ -728,6 +744,7 @@ function putE(e, aid){ aid = aid || CUR;
   if(isEmpty(e)){ LS.del(ek(e.date, aid)); delete I[e.date]; }
   else { LS.set(ek(e.date, aid), e); I[e.date] = summ(e); }
   LS.set('idx:'+aid, I);
+  const an = A(aid); if(an){ an.lastAt = Date.now(); saveAni(); }
 }
 function persist(){ putE(entry); $('#savedNote').textContent = '폰에 자동 저장됨 · ' + nowHM(); }
 
@@ -822,7 +839,7 @@ function renderHome(){
   $('#tPoop').innerHTML = `<i></i>${e && e.poop!=null ? (e.poop?'완료':'없음') : '—'}`;
   $('#tTemp').textContent = e && (e.hot!=null || e.cool!=null) ? `${e.hot ?? '—'}° / ${e.cool ?? '—'}°` : '—';
   $('#tHum').textContent = e && e.hum!=null ? `${e.hum}%` : '—';
-  $('#hPet').textContent = nm(P()); $('#hSpecies').textContent = spOf(P()).en;
+  $('#hPet').textContent = nm(P());
 }
 
 /* ================= 기록 ================= */
@@ -956,7 +973,7 @@ function renderTimeline(){
   Object.keys(INDEX).sort().reverse().forEach(d => { const e = getE(d) || Object.assign(blank(d), INDEX[d]);
     [...e.photos].reverse().forEach(p => items.push({d, p, cap:(e.caps||{})[p] || '', w: e.weight})); });
   const box = $('#timeline');
-  if(!items.length){ box.innerHTML = `<div class="box tl-empty"><img class="pimg" src="${PIMG.url || 'img/snake.png'}" alt="">아직 남긴 사진이 없어요.<br>오늘의 모습을 첫 장으로 남겨 보세요.<div style="margin-top:12px"><button class="mini-btn" id="firstMoment"><svg class="ic"><use href="#u-plus"/></svg>사진 남기기</button></div></div>`;
+  if(!items.length){ box.innerHTML = `<div class="box tl-empty">${PIMG.url ? `<img class="own" src="${PIMG.url}" alt="" style="width:160px;height:120px">` : ''}아직 남긴 사진이 없어요.<br>오늘의 모습을 첫 장으로 남겨 보세요.<div style="margin-top:12px"><button class="mini-btn" id="firstMoment"><svg class="ic"><use href="#u-plus"/></svg>사진 남기기</button></div></div>`;
     $('#firstMoment').onclick = () => openPSheet(); return; }
   let html = '<div class="tl">', curM = '';
   items.forEach((it, i) => {
@@ -1143,7 +1160,7 @@ function saveProfile(ev){
   if(ev && ev.target.id==='aSpecies' && a.species !== prevSp){   // 종을 바꾸면 기준값을 그 종으로
     ['feedMin','feedMax','hotLo','hotHi','coolLo','coolHi','humLo','humHi'].forEach(k => a[k] = '');
     saveAni(); loadSettings(); toast(`${spOf(a).ko} 기준으로 바꿨어요`); return; }
-  saveAni(); renderProfile();
+  saveAni(); renderProfile(); if(ev && ev.target.id==='aName' && !PIMG.url) applyImg();
 }
 $$('#pfEdit input:not([type=file]), #pfEdit select').forEach(el => { el.addEventListener('change', saveProfile); if(el.tagName==='INPUT') el.addEventListener('input', saveProfile); });
 
@@ -1160,21 +1177,29 @@ function renderManual(){
 $('#vAdd').onclick = () => { const n = $('#vName').value.trim(), t = $('#vTel').value.trim(); if(!n || !t){ toast('이름과 전화번호를 넣어 주세요'); return; }
   const V = LS.get('vets', []); V.push({n, t}); LS.set('vets', V); $('#vName').value = $('#vTel').value = ''; renderManual(); };
 
-/* ---------- 개체 사진 ---------- */
+/* ---------- 개체 사진 (기본 그림 없음) ---------- */
+const BLANK = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+const svgUri = x => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(x);
+const PHR = name => svgUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><circle cx="40" cy="40" r="40" fill="#f6e7c6"/><text x="40" y="51" font-size="30" font-family="sans-serif" font-weight="600" text-anchor="middle" fill="#a8835a">${esc([...(name||'?')][0])}</text></svg>`);
+const PHW = () => svgUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 545 340"><rect x="6" y="6" width="533" height="328" rx="34" fill="#fbf3e2" stroke="#e3cfa5" stroke-width="4" stroke-dasharray="14 10"/><g fill="none" stroke="#c9ab80" stroke-width="7" stroke-linejoin="round"><rect x="232" y="118" width="82" height="62" rx="10"/><path d="M252 118l8-14h26l8 14"/><circle cx="273" cy="149" r="17"/></g><text x="272.5" y="232" font-size="28" font-family="sans-serif" text-anchor="middle" fill="#a8977d">눌러서 사진 넣기</text></svg>`);
 const PIMG = {url:null};
 async function applyImg(){
   let u = null; try{ u = await IDB.get('img:'+CUR); }catch(e){}
   PIMG.url = u || null;
-  $$('img.pimg').forEach(im => { im.src = u || 'img/snake.png'; im.classList.toggle('own', !!u); });
+  $$('img.pimg').forEach(im => { im.classList.toggle('own', !!u); im.classList.remove('ph'); im.style.visibility = '';
+    if(u){ im.src = u; return; }
+    if(im.classList.contains('h-snake')){ im.src = PHW(); im.classList.add('ph'); }
+    else if(im.classList.contains('r-snake')){ im.removeAttribute('src'); im.style.visibility = 'hidden'; }
+    else { im.src = PHR(nm(P())); im.classList.add('own'); } });
   refit();
 }
 const imgOf = aid => IDB.get('img:'+aid).catch(() => null);
 $('#aImgIn').onchange = async ev => { const f = ev.target.files[0]; ev.target.value = ''; if(!f) return;
   try{ const u = await shrinkTo(f, 640); await IDB.put('img:'+CUR, u); delete IMGC[CUR]; applyImg(); renderFamily(); toast('사진을 바꿨어요'); }catch(e){ toast('사진을 읽지 못했어요'); } };
 $('#aImgDel').onclick = async () => { await IDB.del('img:'+CUR).catch(()=>{}); delete IMGC[CUR]; applyImg(); renderFamily(); toast('기본 그림으로 바꿨어요'); };
-function shrinkTo(file, M){ return new Promise((res,rej) => { const url = URL.createObjectURL(file), im = new Image();
+function shrinkTo(file, M, type){ return new Promise((res,rej) => { const url = URL.createObjectURL(file), im = new Image();
   im.onload = () => { let w = im.width, h = im.height; if(Math.max(w,h)>M){ const s = M/Math.max(w,h); w=Math.round(w*s); h=Math.round(h*s); }
-    const c = document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(im,0,0,w,h); URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg',.85)); };
+    const c = document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(im,0,0,w,h); URL.revokeObjectURL(url); res(c.toDataURL(type || 'image/jpeg',.85)); };
   im.onerror = () => rej(new Error('x')); im.src = url; }); }
 
 /* ---------- 개체 바꾸기 · 추가 ---------- */
@@ -1192,7 +1217,7 @@ function addAnimal(){
 /* ---------- 사육장 블록 쌓기 ---------- */
 let rackEdit = false, dropNew = null, dropAll = false;
 const IMGC = {};
-async function avaOf(id){ if(!(id in IMGC)) IMGC[id] = await imgOf(id); return IMGC[id] || 'img/snake.png'; }
+async function avaOf(id){ if(!(id in IMGC)) IMGC[id] = await imgOf(id); return IMGC[id] || PHR(nm(A(id))); }
 function rows(){ const out = []; let row = [], w = 0;   // 4자 한 칸에 왼쪽부터, 아래에서 위로
   ENC.forEach(e => { const sz = Math.min(4, Math.max(1, +e.size || 2)); if(w + sz > 4){ out.push(row); row = []; w = 0; } row.push(e); w += sz; });
   if(row.length) out.push(row); return out; }
@@ -1204,7 +1229,7 @@ async function renderRack(el, opt){
     for(const e of row){ const who = ANI.filter(a => encOf(a).id===e.id), sz = Math.min(4, Math.max(1, +e.size || 2));
       const anim = opt.anim==='all' || opt.anim===e.id;
       let inner = '';
-      for(const [j,a] of who.slice(0, sz*2).entries()) inner += `<span class="ava${a.id===CUR?' me':''}" style="--b:${(j*.37).toFixed(2)}s">${opt.edit ? `<i class="axd" data-adel="${a.id}" role="button" aria-label="${esc(nm(a))} 지우기">×</i>` : ''}<img data-ava="${a.id}" src="img/snake.png" alt="">${sz>1 ? `<small>${esc(nm(a))}</small>` : ''}</span>`;
+      for(const [j,a] of who.slice(0, sz*2).entries()) inner += `<span class="ava${a.id===CUR?' me':''}" style="--b:${(j*.37).toFixed(2)}s">${opt.edit ? `<i class="axd" data-adel="${a.id}" role="button" aria-label="${esc(nm(a))} 지우기">×</i>` : ''}<img data-ava="${a.id}" src="${BLANK}" alt="">${sz>1 ? `<small>${esc(nm(a))}</small>` : ''}</span>`;
       if(who.length > sz*2) inner += `<span class="empty-t">+${who.length - sz*2}</span>`;
       if(!who.length) inner = `<span class="empty-t">${sz>1 ? '비어 있어요' : '빈 곳'}</span>`;
       const xd = opt.edit ? `<button class="xdel" data-del="${e.id}" aria-label="${esc(e.name)} 지우기">×</button>` : '';
@@ -1213,7 +1238,7 @@ async function renderRack(el, opt){
     h += '</div>'; }
   h += '</div><div class="floor"></div></div>';
   const homeless = ANI.filter(a => encOf(a).id==='none');
-  if(homeless.length) h += `<div class="homeless">사육장 없는 친구${homeless.map(a => `<button data-hl="${a.id}"><img data-ava="${a.id}" src="img/snake.png" alt="">${esc(nm(a))}${opt.edit ? `<i class="axd hl" data-adel="${a.id}" role="button" aria-label="${esc(nm(a))} 지우기">×</i>` : ''}</button>`).join('')}</div>`;
+  if(homeless.length) h += `<div class="homeless">사육장 없는 친구${homeless.map(a => `<button data-hl="${a.id}"><img data-ava="${a.id}" src="${BLANK}" alt="">${esc(nm(a))}${opt.edit ? `<i class="axd hl" data-adel="${a.id}" role="button" aria-label="${esc(nm(a))} 지우기">×</i>` : ''}</button>`).join('')}</div>`;
   if(opt.edit) h += `<button class="add-blk" data-addenc><svg class="ic"><use href="#u-plus"/></svg>사육장 쌓기</button>`;
   el.innerHTML = h;
   el.querySelectorAll('[data-ava]').forEach(im => avaOf(im.dataset.ava).then(u => { im.src = u; }));
@@ -1231,7 +1256,7 @@ function tapEnc(id, opt){
   if(who.length===1){ openAnimal(who[0].id); return; }
   const box = pick || $('#rackPick');
   if(!pick){ $('#aSheet').classList.add('on'); }
-  box.innerHTML = `<div class="pick"><b style="font-size:14px;color:var(--title)">${esc(ENC.find(e => e.id===id).name)} · 누구 기록을 쓸까요?</b><div class="alist">${who.map(a => `<button data-pk="${a.id}" aria-current="${a.id===CUR}"><img data-ava="${a.id}" src="img/snake.png" alt=""><span><b>${esc(nm(a))}</b><small>${esc([spOf(a).ko, a.morph].filter(Boolean).join(' · '))}</small></span></button>`).join('')}</div></div>`;
+  box.innerHTML = `<div class="pick"><b style="font-size:14px;color:var(--title)">${esc(ENC.find(e => e.id===id).name)} · 누구 기록을 쓸까요?</b><div class="alist">${who.map(a => `<button data-pk="${a.id}" aria-current="${a.id===CUR}"><img data-ava="${a.id}" src="${BLANK}" alt=""><span><b>${esc(nm(a))}</b><small>${esc([spOf(a).ko, a.morph].filter(Boolean).join(' · '))}</small></span></button>`).join('')}</div></div>`;
   box.querySelectorAll('[data-ava]').forEach(im => avaOf(im.dataset.ava).then(u => { im.src = u; }));
   box.querySelectorAll('[data-pk]').forEach(b => b.onclick = () => { box.innerHTML = ''; openAnimal(b.dataset.pk); });
   box.scrollIntoView({behavior:'smooth', block:'nearest'});
@@ -1258,7 +1283,7 @@ function openEnc(id){
   renderEd(); $('#eSheet').classList.add('on');
 }
 function renderEd(){
-  $('#ePrev').innerHTML = `<div class="prev-blk" style="width:${ED.size*25}%"><div class="bin" style="--c:${ED.color};--cb:${cbOf(ED.color)};cursor:default"><span class="lab">${esc($('#eName').value || '사육장')} · ${ED.size}자</span><span class="lamp"></span><span class="glass">${[...ED.who].map((id,j) => `<span class="ava" style="--b:${j*.37}s"><img data-ava="${id}" src="img/snake.png" alt="">${ED.size>1?`<small>${esc(nm(A(id)))}</small>`:''}</span>`).join('') || '<span class="empty-t">비어 있어요</span>'}</span></div></div>`;
+  $('#ePrev').innerHTML = `<div class="prev-blk" style="width:${ED.size*25}%"><div class="bin" style="--c:${ED.color};--cb:${cbOf(ED.color)};cursor:default"><span class="lab">${esc($('#eName').value || '사육장')} · ${ED.size}자</span><span class="lamp"></span><span class="glass">${[...ED.who].map((id,j) => `<span class="ava" style="--b:${j*.37}s"><img data-ava="${id}" src="${BLANK}" alt="">${ED.size>1?`<small>${esc(nm(A(id)))}</small>`:''}</span>`).join('') || '<span class="empty-t">비어 있어요</span>'}</span></div></div>`;
   $$('#ePrev [data-ava]').forEach(im => avaOf(im.dataset.ava).then(u => { im.src = u; }));
   $('#eSize').innerHTML = [1,2,3,4].map(n => `<button data-sz="${n}" aria-pressed="${ED.size===n}">${n}자 · ${n*30}cm</button>`).join('');
   $$('#eSize button').forEach(b => b.onclick = () => { ED.size = +b.dataset.sz; renderEd(); });
@@ -1309,6 +1334,7 @@ async function delAnimal(id){
 }
 $('#aDel').onclick = () => delAnimal(CUR);
 $('#petBtn').onclick = openRack;
+$('.h-snake').onclick = () => { if(!PIMG.url) $('#aImgIn').click(); };
 $('#aX').onclick = () => $('#aSheet').classList.remove('on');
 
 /* ---------- 여러 마리 한 번에 ---------- */
@@ -1349,7 +1375,7 @@ $('#bOk').onclick = async () => {
 $('#bkOut').onclick = async () => {
   const ls = {}; Object.keys(localStorage).filter(k => /^(animals|encs|cur|vets|idx:|e:|env:)/.test(k)).forEach(k => ls[k] = localStorage.getItem(k));
   const st = {...S}; delete st.token; ls.settings = JSON.stringify(st);
-  const img = {}; const keys = new Set(ANI.map(a => 'img:'+a.id));
+  const img = {}; const keys = new Set(ANI.map(a => 'img:'+a.id)); keys.add('mark');
   Object.keys(ls).filter(k => k.startsWith('e:')).forEach(k => { try{ JSON.parse(ls[k]).photos.forEach(p => p.startsWith('local:') && keys.add(p)); }catch(e){} });
   for(const k of keys){ const v = await IDB.get(k).catch(()=>null); if(v) img[k] = v; }
   const blob = new Blob([JSON.stringify({app:'snake-diary', v:1, at:new Date().toISOString(), ls, img})], {type:'application/json'});
@@ -1394,7 +1420,27 @@ $('#sTest').onclick = async () => { $('#sSave').click(); const o = $('#sResult')
   catch(e){ o.innerHTML = `<div class="msg">연결 실패: ${e.status===401?'토큰이 올바르지 않아요':e.status===404?'저장소를 찾을 수 없어요':esc(e.message)}</div>`; } };
 
 try{ if('serviceWorker' in navigator && location.protocol==='https:' && !/claude\.ai|claudeusercontent/.test(location.host)) navigator.serviceWorker.register('sw.js').catch(()=>{}); }catch(e){}
-loadSettings(); applyImg();
+/* ---------- 앱 이름 · 마크 ---------- */
+const CFG = Object.assign({name:'뱀 일기', title:'SNAKE DIARY', tag:'DAILY LOG', mark:''}, window.APP_CONFIG || {});
+async function applyBrand(){
+  const t = S.appTitle || CFG.title, g = S.appTag ?? CFG.tag;
+  $('#hTitle').textContent = t; $('#hTag').textContent = g; $('#hTag').style.display = g ? '' : 'none';
+  document.title = S.appTitle || CFG.name;
+  $('#sAppTitle').placeholder = CFG.title; $('#sAppTag').placeholder = CFG.tag; $('#sAppTitle').value = S.appTitle || ''; $('#sAppTag').value = S.appTag ?? '';
+  let m = null; try{ m = await IDB.get('mark'); }catch(e){}
+  m = m || CFG.mark || null;
+  $('#markImg').hidden = !m; $('#markPh').hidden = !!m; if(m) $('#markImg').src = m; else $('#markImg').removeAttribute('src');
+  refit();
+}
+const setMark = async f => { if(!f) return; try{ await IDB.put('mark', await shrinkTo(f, 400, 'image/png')); applyBrand(); toast('마크를 바꿨어요'); }catch(e){ toast('사진을 읽지 못했어요'); } };
+$('#markBtn').onclick = () => $('#markIn').click();
+$('#markIn').onchange = ev => { const f = ev.target.files[0]; ev.target.value = ''; setMark(f); };
+$('#markIn2').onchange = ev => { const f = ev.target.files[0]; ev.target.value = ''; setMark(f); };
+$('#markDel').onclick = async () => { await IDB.del('mark').catch(()=>{}); applyBrand(); toast(CFG.mark ? '기본 마크로 돌렸어요' : '마크를 비웠어요'); };
+$('#sAppTitle').oninput = e => { S.appTitle = e.target.value.trim(); LS.set('settings', S); applyBrand(); };
+$('#sAppTag').oninput = e => { const v = e.target.value.trim(); if(v) S.appTag = v; else delete S.appTag; LS.set('settings', S); applyBrand(); };
+
+loadSettings(); applyImg(); applyBrand();
 openDate(today()).then(() => { renderHome(); fit(); });
 </script>
 </body>
