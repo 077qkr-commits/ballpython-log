@@ -574,6 +574,7 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
     <div id="ghOn" hidden>
       <p style="margin:8px 0 0;font-size:14.5px">✓ <b id="ghName"></b>에 연결됐어요</p>
       <p class="hint" style="margin:4px 0 0">기록 저장하기를 누르면 이 저장소에도 올라가요.</p>
+      <p class="hint" id="ghPend" style="margin:4px 0 0"></p>
       <button class="mini-btn" id="ghOff" style="margin-top:12px;width:100%;background:var(--white);border:1px solid var(--line);color:#b53a2c">깃허브 연결 해제하기</button>
     </div>
     <div id="ghForm">
@@ -747,7 +748,10 @@ const summ = e => ({date:e.date, fed:e.fed, feedDate:e.feedDate, poop:e.poop, po
 const ek = (d, aid) => `e:${aid||CUR}:${d}`;
 const getE = (d, aid) => { const v = LS.get(ek(d, aid), null), en = envOf(d, aid);
   if(!v && !en) return null; const e = Object.assign(blank(d), v || {}); if(en) Object.assign(e, en); else Object.assign(e, {hot:null, cool:null, hum:null}); return e; };
-function putE(e, aid){ aid = aid || CUR;
+const DIRTY = () => LS.get('dirty', {});
+function markDirty(aid, d, on){ const D = DIRTY(); D[aid] = D[aid] || {}; if(on) D[aid][d] = 1; else delete D[aid][d]; if(!Object.keys(D[aid]).length) delete D[aid]; LS.set('dirty', D); }
+const dirtyCount = () => Object.values(DIRTY()).reduce((n, x) => n + Object.keys(x).length, 0);
+function putE(e, aid, clean){ aid = aid || CUR; markDirty(aid, e.date, !clean);
   setEnv(e.date, encOf(A(aid)).id, e);
   const I = idxOf(aid);
   if(isEmpty(e)){ LS.del(ek(e.date, aid)); delete I[e.date]; }
@@ -792,19 +796,51 @@ function toMd(e, a){
   L.push('', `<!-- data: ${JSON.stringify(e)} -->`, '');
   return L.join('\n');
 }
-async function upload(e, aid){ aid = aid || CUR; const a = A(aid);
-  const files = [], photos = [], caps = {}, st = nowHM().replace(':','');
+async function buildFiles(e, aid, files){ const a = A(aid);
+  const photos = [], caps = {}, st = nowHM().replace(':','');
   for(let i=0;i<e.photos.length;i++){ const p = e.photos[i];
     if(p.startsWith('local:')){ const u = await IDB.get(p); if(!u) continue; const path = `photos/${aid}/${e.date}/${st}-${i+1}.jpg`; files.push({path, b64:u.split(',')[1], local:p}); photos.push(path); photoCache[path] = u; if(e.caps && e.caps[p]!=null) caps[path] = e.caps[p]; }
     else { photos.push(p); if(e.caps && e.caps[p]!=null) caps[p] = e.caps[p]; } }
   const out = {...e, photos, caps};
   files.push({path:`logs/${aid}/${e.date}.md`, b64:b64(toMd(out, a))});
-  let idx = {}; const t = await GH.raw(`logs/${aid}/index.json`); if(t) idx = JSON.parse(t);
+  return out;
+}
+const ghIdx = async aid => { const t = await GH.raw(`logs/${aid}/index.json`); return t ? JSON.parse(t) : {}; };
+async function upload(e, aid){ aid = aid || CUR; const a = A(aid), files = [];
+  const out = await buildFiles(e, aid, files), idx = await ghIdx(aid);
   idx[e.date] = summ(out); files.push({path:`logs/${aid}/index.json`, b64:b64(JSON.stringify(idx,null,1))});
   files.push({path:'animals.json', b64:b64(JSON.stringify({animals:ANI, enclosures:ENC},null,1))});
   await GH.commit(files, `${e.date} ${nm(a)} 기록`);
   files.forEach(f => f.local && IDB.del(f.local));
+  keepOut(out, aid);
   return {out, idx};
+}
+function keepOut(out, aid){ const e = Object.assign(blank(out.date), out); putE(e, aid, true); if(aid===CUR && entry && entry.date===out.date) entry = e; }
+/* 못 올린 기록 한 번에 올리기 (커밋 1개) */
+let syncing = false;
+async function syncAll(){
+  if(syncing || !GH.ok()) return; const D = DIRTY(), n = dirtyCount(); if(!n) return;
+  syncing = true; toast(`못 올린 기록 ${n}개를 올리는 중…`);
+  try{
+    const files = [], outs = [];
+    for(const aid in D){ if(!A(aid)){ continue; } const idx = await ghIdx(aid);
+      for(const d of Object.keys(D[aid]).sort()){ const e = getE(d, aid);
+        if(!e){ continue; } const out = await buildFiles(e, aid, files); idx[d] = summ(out); outs.push([out, aid]); }
+      files.push({path:`logs/${aid}/index.json`, b64:b64(JSON.stringify(idx,null,1))}); }
+    files.push({path:'animals.json', b64:b64(JSON.stringify({animals:ANI, enclosures:ENC},null,1))});
+    await GH.commit(files, `못 올린 기록 ${outs.length}개`);
+    files.forEach(f => f.local && IDB.del(f.local));
+    outs.forEach(([o, aid]) => keepOut(o, aid)); LS.set('dirty', {});
+    S.syncedOnce = true; LS.set('settings', S);
+    toast(`못 올린 기록 ${outs.length}개를 깃허브에 올렸어요`);
+  }catch(er){ ghFail(er, true); }
+  finally{ syncing = false; }
+}
+/* 토큰 문제 처리 */
+function ghFail(er, quiet){
+  if(er && er.status===401){ S.token = ''; S.ghLinked = false; S.ghExpired = true; LS.set('settings', S); renderGh();
+    toast('깃허브 토큰 기간이 끝났어요. 정보 탭에서 다시 연결해 주세요. 기록은 폰에 저장됐어요'); return; }
+  toast((quiet ? '깃허브에 못 올렸어요: ' : '폰에는 저장됐어요. 깃허브 실패: ') + (er && er.status===403 ? '토큰 권한을 확인해 주세요 (Contents: Read and write)' : er.message));
 }
 
 /* ================= 주기 계산 ================= */
@@ -883,9 +919,9 @@ async function save(){
   persist();
   if(!GH.ok()){ toast('저장했어요'); return; }
   const b = $('#save'); b.disabled = true; b.querySelector('span').textContent = '저장 중…';
-  try{ const {out} = await upload(entry); entry = Object.assign(blank(out.date), out); putE(entry);
-    toast('깃허브에 저장했어요'); $('#savedNote').textContent = '깃허브에 저장됨 · ' + nowHM(); }
-  catch(e){ toast('폰에는 저장됐어요. 깃허브 실패: ' + e.message); }
+  try{ await upload(entry);
+    toast('깃허브에 저장했어요'); $('#savedNote').textContent = '깃허브에 저장됨 · ' + nowHM(); if(dirtyCount()) syncAll(); }
+  catch(e){ ghFail(e); }
   finally{ b.disabled = false; b.querySelector('span').textContent = '기록 저장하기'; }
 }
 
@@ -1379,7 +1415,7 @@ $('#bOk').onclick = async () => {
   INDEX = LS.get('idx:'+CUR, {}); if(entry && entry.date===d) entry = getE(d) || blank(d);
   $('#bSheet').classList.remove('on'); renderHome(); if(calOn) renderCal(); else if(entry) renderForm();
   toast(`${done.length}마리 기록을 저장했어요`);
-  if(GH.ok() && done.length){ try{ for(const [e, id] of done) await upload(e, id); toast('깃허브에도 저장했어요'); }catch(er){ toast('폰에는 저장됐어요. 깃허브 실패: ' + er.message); } }
+  if(GH.ok() && done.length) syncAll();
 };
 
 /* ---------- 백업 ---------- */
@@ -1423,15 +1459,21 @@ $('#hum').oninput = e => { entry.hum = num(e.target.value); persist(); };
 $('#note').oninput = e => { entry.note = e.target.value; persist(); };
 $('#save').onclick = save;
 $('#lbX').onclick = () => $('#lb').classList.remove('on');
-function renderGh(){ const on = !!(S.ghLinked && GH.ok());
+function renderGh(){ const on = !!(S.ghLinked && GH.ok()), n = dirtyCount();
   $('#ghOn').hidden = !on; $('#ghForm').hidden = on;
-  if(on) $('#ghName').textContent = `${S.owner}/${S.repo}`; }
+  if(on) $('#ghName').textContent = `${S.owner}/${S.repo}`;
+  $('#ghPend').innerHTML = on && n ? `아직 못 올린 기록 ${n}개 <button class="linkbtn" id="ghSync">지금 올리기</button>` : '';
+  if($('#ghSync')) $('#ghSync').onclick = () => syncAll().then(renderGh);
+  $('#sResult').innerHTML = !on && S.ghExpired ? `<div class="msg">토큰 기간이 끝났거나 잘못됐어요. 새 토큰을 넣고 다시 연결해 주세요.${n ? ` 그동안 저장한 기록 ${n}개는 연결하면 한 번에 올라가요.` : ''}</div>` : $('#sResult').innerHTML; }
 $('#sTest').onclick = async () => { const o = $('#sResult');
   ['owner','repo','branch','token'].forEach(k => S[k] = $('#s'+k[0].toUpperCase()+k.slice(1)).value.trim());
   if(!GH.ok()){ o.innerHTML = '<div class="msg">아이디, 저장소, 토큰을 모두 입력해 주세요.</div>'; return; }
   o.innerHTML = '<div class="msg">확인 중…</div>';
-  try{ const r = await (await GH.req('')).json(); S.ghLinked = true; LS.set('settings', S); o.innerHTML = ''; $('#sToken').value = ''; renderGh();
-    toast(r.private ? '깃허브에 연결했어요' : '연결했어요. 공개 저장소라 기록이 누구에게나 보여요'); }
+  try{ const r = await (await GH.req('')).json(); S.ghLinked = true; S.ghExpired = false; LS.set('settings', S); o.innerHTML = ''; $('#sToken').value = '';
+    if(!S.syncedOnce){ ANI.forEach(a => { const I = LS.get('idx:'+a.id, {}); Object.keys(I).forEach(d => markDirty(a.id, d, true));
+      Object.keys(envAll(encOf(a).id)).forEach(d => markDirty(a.id, d, true)); }); }
+    renderGh(); toast(r.private ? '깃허브에 연결했어요' : '연결했어요. 공개 저장소라 기록이 누구에게나 보여요');
+    if(dirtyCount()) setTimeout(() => syncAll().then(renderGh), 1200); else { S.syncedOnce = true; LS.set('settings', S); } }
   catch(e){ S.ghLinked = false; S.token = ''; LS.set('settings', S); o.innerHTML = `<div class="msg">연결 실패: ${e.status===401?'토큰이 올바르지 않아요':e.status===404?'저장소를 찾을 수 없어요 (아이디·저장소 이름, 토큰 권한 확인)':esc(e.message)}</div>`; } };
 $('#ghOff').onclick = async () => {
   if(!await ask('깃허브 연결을 해제할까요?', '이 폰에 저장된 토큰을 지워요. 깃허브에 이미 올라간 기록과 폰의 기록은 그대로예요.', '해제하기')) return;
