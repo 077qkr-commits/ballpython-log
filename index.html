@@ -53,6 +53,7 @@ section.spread{display:flex!important;flex-direction:column;justify-content:spac
 #markPh small{font-size:11px;margin-top:4px;letter-spacing:.1em}
 .h-logo h1{overflow-wrap:anywhere}
 img.h-snake.ph{cursor:pointer}
+.ava img:not([src^="data"]),.alist img:not([src^="data"]),.homeless img:not([src^="data"]){object-position:20% 50%}
 .h-logo h1{margin:14px 0 0;font-size:21px;font-weight:500;letter-spacing:.5em;padding-left:.5em;color:var(--title)}
 .h-logo .tag{margin-top:6px;font-size:11px;letter-spacing:.32em;padding-left:.32em;color:var(--ink2);display:flex;justify-content:center;align-items:center;gap:8px}
 .h-logo .tag::before,.h-logo .tag::after{content:"";width:16px;height:1px;background:var(--ink2)}
@@ -570,6 +571,12 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
   </div>
   <div class="box" id="settings">
     <b style="color:var(--title)">깃허브 연결</b>
+    <div id="ghOn" hidden>
+      <p style="margin:8px 0 0;font-size:14.5px">✓ <b id="ghName"></b>에 연결됐어요</p>
+      <p class="hint" style="margin:4px 0 0">기록 저장하기를 누르면 이 저장소에도 올라가요.</p>
+      <button class="mini-btn" id="ghOff" style="margin-top:12px;width:100%;background:var(--white);border:1px solid var(--line);color:#b53a2c">깃허브 연결 해제하기</button>
+    </div>
+    <div id="ghForm">
     <label class="f" for="sOwner">깃허브 아이디</label><input class="inp" id="sOwner" autocapitalize="off" placeholder="내 깃허브 아이디">
     <div class="g2">
       <div><label class="f" for="sRepo">기록 저장소</label><input class="inp" id="sRepo" autocapitalize="off" placeholder="snake-diary"></div>
@@ -577,8 +584,9 @@ nav.tabs button[aria-selected="true"]::after{content:"";position:absolute;bottom
     </div>
     <label class="f" for="sToken">토큰</label><input class="inp" id="sToken" type="password" autocapitalize="off" placeholder="github_pat_...">
     <p class="hint">깃허브를 연결하기 전에는 기록이 이 폰에만 저장돼요.</p>
-    <div class="g2"><button class="mini-btn" id="sSave">저장</button><button class="mini-btn" id="sTest" style="background:var(--white);border:1px solid var(--line)">연결 확인</button></div>
+    <button class="mini-btn" id="sTest" style="margin-top:12px;width:100%;height:44px">연결하기</button>
     <div id="sResult"></div>
+    </div>
   </div>
 </section>
 </main>
@@ -677,6 +685,7 @@ const nowHM = () => { const d = new Date(); return `${pad(d.getHours())}:${pad(d
 const num = v => { if(v===''||v==null) return null; const n = parseFloat(String(v).replace(',','.')); return isFinite(n) ? n : null; };
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+const CFG = Object.assign({name:'뱀 일기', title:'SNAKE DIARY', tag:'DAILY LOG', mark:'', petImage:''}, window.APP_CONFIG || {});
 /* ---------- 종 기준 (참고용) ---------- */
 const SP = {
   ball:  {ko:'볼파이톤', en:'BALL PYTHON', hot:[31,33], cool:[24,27], hum:[50,60], shed:'60~70%', feed:[['0~6개월','5~7일'],['6~18개월','7~10일'],['18~36개월','10~14일'],['36개월~','14~21일']], f:[7,10]},
@@ -973,7 +982,7 @@ function renderTimeline(){
   Object.keys(INDEX).sort().reverse().forEach(d => { const e = getE(d) || Object.assign(blank(d), INDEX[d]);
     [...e.photos].reverse().forEach(p => items.push({d, p, cap:(e.caps||{})[p] || '', w: e.weight})); });
   const box = $('#timeline');
-  if(!items.length){ box.innerHTML = `<div class="box tl-empty">${PIMG.url ? `<img class="own" src="${PIMG.url}" alt="" style="width:160px;height:120px">` : ''}아직 남긴 사진이 없어요.<br>오늘의 모습을 첫 장으로 남겨 보세요.<div style="margin-top:12px"><button class="mini-btn" id="firstMoment"><svg class="ic"><use href="#u-plus"/></svg>사진 남기기</button></div></div>`;
+  if(!items.length){ box.innerHTML = `<div class="box tl-empty">${PIMG.url ? `<img class="own" src="${PIMG.url}" alt="" style="width:160px;height:120px">` : CFG.petImage ? `<img src="${CFG.petImage}" alt="">` : ''}아직 남긴 사진이 없어요.<br>오늘의 모습을 첫 장으로 남겨 보세요.<div style="margin-top:12px"><button class="mini-btn" id="firstMoment"><svg class="ic"><use href="#u-plus"/></svg>사진 남기기</button></div></div>`;
     $('#firstMoment').onclick = () => openPSheet(); return; }
   let html = '<div class="tl">', curM = '';
   items.forEach((it, i) => {
@@ -1132,7 +1141,8 @@ function goLog(d, sec){ go('v-log'); setCal(false); openDate(d).then(() => { if(
 const AK = ['name','species','morph','sex','hatch','adopt','from','encId','feedMin','feedMax','hotLo','hotHi','coolLo','coolHi','humLo','humHi'];
 const aEl = k => $('#a'+k[0].toUpperCase()+k.slice(1));
 function loadSettings(){
-  ['owner','repo','branch','token'].forEach(k => { $('#s'+k[0].toUpperCase()+k.slice(1)).value = S[k] || ''; });
+  ['owner','repo','branch'].forEach(k => { $('#s'+k[0].toUpperCase()+k.slice(1)).value = S[k] || ''; }); $('#sToken').value = '';
+  if(S.ghLinked===undefined && GH.ok()) S.ghLinked = true; renderGh();
   $('#aSpecies').innerHTML = Object.entries(SP).map(([k,v]) => `<option value="${k}">${v.ko}</option>`).join('');
   $('#aEncId').innerHTML = ENC.map(e => `<option value="${e.id}">${esc(e.name)}</option>`).join('') + '<option value="none">사육장 없음</option>';
   const a = P(), sp = spOf(a), r = {hot:sp.hot, cool:sp.cool, hum:sp.hum};
@@ -1188,6 +1198,7 @@ async function applyImg(){
   PIMG.url = u || null;
   $$('img.pimg').forEach(im => { im.classList.toggle('own', !!u); im.classList.remove('ph'); im.style.visibility = '';
     if(u){ im.src = u; return; }
+    if(CFG.petImage){ im.src = CFG.petImage; im.classList.remove('own'); return; }
     if(im.classList.contains('h-snake')){ im.src = PHW(); im.classList.add('ph'); }
     else if(im.classList.contains('r-snake')){ im.removeAttribute('src'); im.style.visibility = 'hidden'; }
     else { im.src = PHR(nm(P())); im.classList.add('own'); } });
@@ -1217,7 +1228,7 @@ function addAnimal(){
 /* ---------- 사육장 블록 쌓기 ---------- */
 let rackEdit = false, dropNew = null, dropAll = false;
 const IMGC = {};
-async function avaOf(id){ if(!(id in IMGC)) IMGC[id] = await imgOf(id); return IMGC[id] || PHR(nm(A(id))); }
+async function avaOf(id){ if(!(id in IMGC)) IMGC[id] = await imgOf(id); return IMGC[id] || CFG.petImage || PHR(nm(A(id))); }
 function rows(){ const out = []; let row = [], w = 0;   // 4자 한 칸에 왼쪽부터, 아래에서 위로
   ENC.forEach(e => { const sz = Math.min(4, Math.max(1, +e.size || 2)); if(w + sz > 4){ out.push(row); row = []; w = 0; } row.push(e); w += sz; });
   if(row.length) out.push(row); return out; }
@@ -1412,16 +1423,22 @@ $('#hum').oninput = e => { entry.hum = num(e.target.value); persist(); };
 $('#note').oninput = e => { entry.note = e.target.value; persist(); };
 $('#save').onclick = save;
 $('#lbX').onclick = () => $('#lb').classList.remove('on');
-$('#sSave').onclick = () => { ['owner','repo','branch','token'].forEach(k => S[k] = $('#s'+k[0].toUpperCase()+k.slice(1)).value.trim()); LS.set('settings', S); toast('저장했어요'); };
-$('#sTest').onclick = async () => { $('#sSave').click(); const o = $('#sResult');
+function renderGh(){ const on = !!(S.ghLinked && GH.ok());
+  $('#ghOn').hidden = !on; $('#ghForm').hidden = on;
+  if(on) $('#ghName').textContent = `${S.owner}/${S.repo}`; }
+$('#sTest').onclick = async () => { const o = $('#sResult');
+  ['owner','repo','branch','token'].forEach(k => S[k] = $('#s'+k[0].toUpperCase()+k.slice(1)).value.trim());
   if(!GH.ok()){ o.innerHTML = '<div class="msg">아이디, 저장소, 토큰을 모두 입력해 주세요.</div>'; return; }
   o.innerHTML = '<div class="msg">확인 중…</div>';
-  try{ const r = await (await GH.req('')).json(); o.innerHTML = `<div class="msg">${esc(r.full_name)} 연결됨${r.private?'':' · 공개 저장소라 기록이 누구에게나 보여요. Private 추천'}</div>`; }
-  catch(e){ o.innerHTML = `<div class="msg">연결 실패: ${e.status===401?'토큰이 올바르지 않아요':e.status===404?'저장소를 찾을 수 없어요':esc(e.message)}</div>`; } };
+  try{ const r = await (await GH.req('')).json(); S.ghLinked = true; LS.set('settings', S); o.innerHTML = ''; $('#sToken').value = ''; renderGh();
+    toast(r.private ? '깃허브에 연결했어요' : '연결했어요. 공개 저장소라 기록이 누구에게나 보여요'); }
+  catch(e){ S.ghLinked = false; S.token = ''; LS.set('settings', S); o.innerHTML = `<div class="msg">연결 실패: ${e.status===401?'토큰이 올바르지 않아요':e.status===404?'저장소를 찾을 수 없어요 (아이디·저장소 이름, 토큰 권한 확인)':esc(e.message)}</div>`; } };
+$('#ghOff').onclick = async () => {
+  if(!await ask('깃허브 연결을 해제할까요?', '이 폰에 저장된 토큰을 지워요. 깃허브에 이미 올라간 기록과 폰의 기록은 그대로예요.', '해제하기')) return;
+  S.token = ''; S.ghLinked = false; LS.set('settings', S); renderGh(); toast('연결을 해제했어요'); };
 
 try{ if('serviceWorker' in navigator && location.protocol==='https:' && !/claude\.ai|claudeusercontent/.test(location.host)) navigator.serviceWorker.register('sw.js').catch(()=>{}); }catch(e){}
 /* ---------- 앱 이름 · 마크 ---------- */
-const CFG = Object.assign({name:'뱀 일기', title:'SNAKE DIARY', tag:'DAILY LOG', mark:''}, window.APP_CONFIG || {});
 async function applyBrand(){
   const t = S.appTitle || CFG.title, g = S.appTag ?? CFG.tag;
   $('#hTitle').textContent = t; $('#hTag').textContent = g; $('#hTag').style.display = g ? '' : 'none';
