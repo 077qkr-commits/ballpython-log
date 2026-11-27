@@ -176,6 +176,13 @@ body.fs2 .dlg p,body.fs2 #chat,body.fs2 #choices,body.fs2 #menuBody,body.fs2 .ca
 .msg.gcard .gpic{border-radius:6px}
 .row .gpic{border-radius:4px}
 .row>div{flex:1;min-width:0}
+.vols{display:flex;flex-direction:column;gap:6px}
+.vrow{background:var(--panel2);border:1px solid var(--line);padding:10px 12px}
+.vrow .vh{display:flex;justify-content:space-between;align-items:baseline}
+.vrow b{font-weight:400;font-family:var(--display);font-size:16px}
+.vrow span{font-size:13px;color:var(--amber);font-variant-numeric:tabular-nums}
+.vrow p{margin:2px 0 6px;font-size:12px;color:var(--dim)}
+.vrow input[type=range]{width:100%;accent-color:var(--snake);height:28px;margin:0}
 .rbadge{width:44px;height:44px;flex:none;image-rendering:pixelated;border-radius:50%}
 .item>div{flex:1;min-width:0}
 .acard canvas{image-rendering:pixelated}
@@ -398,6 +405,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 let M={album:{},endings:{},ach:{},bites:0,daily:false,hint:false,sfx:true,vol:0.7,speed:1,branches:{},picked:{},giftSeen:{},skipSeen:true,fs:0,auto:false};
 try{const raw=localStorage.getItem(META_KEY);if(raw)M=Object.assign(M,JSON.parse(raw));}catch(e){}
 function saveMeta(){try{localStorage.setItem(META_KEY,JSON.stringify(M));}catch(e){}}
+if(M.mute===undefined){if(M.sfx===false&&M.bgm===false){M.mute=true;M.sfx=true;M.bgm=true;}else M.mute=false;}
 /* 이미 본 대사: 다음 판부터 빨리 넘어간다 */
 const SEEN_KEY='knock7-seen-v5';let SEEN={};try{SEEN=JSON.parse(localStorage.getItem(SEEN_KEY)||'{}')||{};}catch(e){}
 let seenT=null;
@@ -505,11 +513,12 @@ function nextToast(){
    ========================================================= */
 const SFX=(()=>{let ac=null,master=null;
   function ctx(){if(!ac){try{ac=new (window.AudioContext||window.webkitAudioContext)();master=ac.createGain();master.connect(ac.destination);}catch(e){return null;}}
-    try{master.gain.value=M.sfx?M.vol:0;if(ac.state==='suspended')ac.resume();}catch(e){}return ac;}
-  function tone(f,d,type,v,when,slide){const a=ctx();if(!a||!M.sfx)return;try{const t=a.currentTime+(when||0);const o=a.createOscillator(),g=a.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);
+    try{master.gain.value=M.mute?0:1;if(ac.state==='suspended')ac.resume();}catch(e){}return ac;}
+  const catVol=c=>c==='blip'?(M.blip===false?0:(M.blipVol!=null?M.blipVol:0.7)):(M.sfx===false?0:(M.vol!=null?M.vol:0.7));
+  function tone(f,d,type,v,when,slide,cat){const a=ctx();const cv=catVol(cat);if(!a||M.mute||cv<=0)return;v=(v||.15)*cv;try{const t=a.currentTime+(when||0);const o=a.createOscillator(),g=a.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);
     if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(v||.15,t+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+d);
     o.connect(g);g.connect(master);o.start(t);o.stop(t+d+0.03);}catch(e){}}
-  function noise(d,v,when,fq,q,type){const a=ctx();if(!a||!M.sfx)return;try{const t=a.currentTime+(when||0);const b=a.createBuffer(1,Math.ceil(a.sampleRate*d),a.sampleRate);const ch=b.getChannelData(0);
+  function noise(d,v,when,fq,q,type){const a=ctx();const cv=catVol();if(!a||M.mute||cv<=0)return;v=(v||.2)*cv;try{const t=a.currentTime+(when||0);const b=a.createBuffer(1,Math.ceil(a.sampleRate*d),a.sampleRate);const ch=b.getChannelData(0);
     for(let i=0;i<ch.length;i++)ch[i]=Math.random()*2-1;const sN=a.createBufferSource();sN.buffer=b;const f=a.createBiquadFilter();f.type=type||'bandpass';f.frequency.value=fq||2000;f.Q.value=q||1;
     const g=a.createGain();g.gain.setValueAtTime(v||.2,t);g.gain.exponentialRampToValueAtTime(0.0001,t+d);sN.connect(f);f.connect(g);g.connect(master);sN.start(t);}catch(e){}}
   return {wake:ctx,ac:()=>ac,
@@ -531,9 +540,9 @@ const SFX=(()=>{let ac=null,master=null;
     refuse(){tone(440,.15,'triangle',.11);tone(330,.24,'triangle',.11,.12)},
     water(){[0,.06,.12].forEach((w,i)=>tone(900+i*180,.06,'sine',.06,w))},
     mist(){noise(.35,.08,0,6000,.5,'highpass')},
-    blip(who){if(M.blip===false)return;const base=who==='이지환'?330:who==='서비원'?520:who?440:660;
-      const f=base*(1+(Math.random()-.5)*.08);if(!who)tone(f,.035,'sine',.05);else{tone(f,.045,'triangle',.07);tone(f*2,.02,'sine',.015);}},
-    page(){if(M.blip===false)return;tone(1500,.025,'sine',.03);}
+    blip(who){const base=who==='이지환'?330:who==='서비원'?520:who?440:660;
+      const f=base*(1+(Math.random()-.5)*.08);if(!who)tone(f,.035,'sine',.07,0,0,'blip');else{tone(f,.045,'triangle',.1,0,0,'blip');tone(f*2,.02,'sine',.02,0,0,'blip');}},
+    page(){tone(1500,.025,'sine',.045,0,0,'blip');}
   };})();
 /* 아이폰 무음 스위치가 켜져 있어도 소리가 나도록: 첫 터치에 오디오 세션을 '재생'으로 */
 let audioPrimed=false;
@@ -575,7 +584,7 @@ const BGM=(()=>{
     const d=a.createDelay(1);d.delayTime.value=0.33;const fb=a.createGain();fb.gain.value=0.28;const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2200;
     wet=a.createGain();wet.gain.value=0.22;wet.connect(d);d.connect(lp);lp.connect(fb);fb.connect(d);lp.connect(bus);
     return a;}
-  function vol(){return (M.bgm!==false)?(M.bgmVol!=null?M.bgmVol:0.5)*0.36:0;}
+  function vol(){return (!M.mute&&M.bgm!==false)?(M.bgmVol!=null?M.bgmVol:0.5)*0.36:0;}
   function voice(a,f,t,dur,type,v,att,toWet,cut){
     const o=a.createOscillator(),g=a.createGain(),fl=a.createBiquadFilter();o.type=type;o.frequency.value=f;
     fl.type='lowpass';fl.frequency.value=cut||1800;g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(v,t+att);
@@ -1140,17 +1149,18 @@ function renderMenu(){
     const sp=el('div','toggle','<div><b>대사 속도</b><p>대화창 글자가 나오는 속도예요.</p></div>');
     const spb=el('button','sw');spb.type='button';spb.textContent=['느리게','보통','빠르게'][M.speed];
     spb.onclick=()=>{M.speed=(M.speed+1)%3;saveMeta();renderMenu();};sp.appendChild(spb);box.appendChild(sp);
-    const so=el('div','toggle','<div><b>효과음</b><p>문자 알림, 노크 소리, 도어락 소리 같은 효과음이에요.</p></div>');
-    const sob=el('button','sw');sob.type='button';sob.setAttribute('aria-pressed',M.sfx);sob.textContent=M.sfx?'켜짐':'꺼짐';
-    sob.onclick=()=>{M.sfx=!M.sfx;saveMeta();renderMenu();syncSfx();if(M.sfx)SFX.good();};so.appendChild(sob);box.appendChild(so);
-    {const bl=el('div','toggle','<div><b>대사 효과음</b><p>대화창에 글자가 찍힐 때 나는 소리예요. 형, 나, 혼잣말 소리가 달라요.</p></div>');
-      const blb=el('button','sw');blb.type='button';blb.textContent=M.blip!==false?'켜짐':'꺼짐';blb.onclick=()=>{M.blip=M.blip===false;saveMeta();renderMenu();if(M.blip)SFX.blip('이지환');};bl.appendChild(blb);box.appendChild(bl);}
-    {const bg=el('div','toggle','<div><b>배경음</b><p>아침, 오후, 밤마다 다른 잔잔한 곡이 흘러요. 노크가 사라지면 곡도 바뀌어요.</p></div>');
-      const bb=el('button','sw');bb.type='button';bb.textContent=M.bgm!==false?'켜짐':'꺼짐';
-      bb.onclick=()=>{M.bgm=M.bgm===false;saveMeta();syncSfx();renderMenu();};bg.appendChild(bb);box.appendChild(bg);
-      const bv=el('div','toggle','<div><b>배경음 크기</b><p>효과음보다 작게 깔려요.</p></div>');
-      const vb=el('button','sw');vb.type='button';const lv=[0.25,0.5,0.8];const cur=M.bgmVol!=null?M.bgmVol:0.5;vb.textContent=['작게','보통','크게'][Math.max(0,lv.indexOf(cur))]||'보통';
-      vb.onclick=()=>{const i=lv.indexOf(cur);M.bgmVol=lv[(i+1)%3];saveMeta();BGM.refresh();renderMenu();};bv.appendChild(vb);box.appendChild(bv);}
+    {const sec=el('div','vols');
+      if(M.mute){const mn=el('p','gnote','지금 소리가 꺼져 있어요. 화면 위 [소리 꺼짐]을 누르면 다시 켜져요.');sec.appendChild(mn);}
+      const row=(title,desc,get,set,test)=>{const r=el('div','vrow','<div class="vh"><b></b><span></span></div><p></p>');
+        r.querySelector('b').textContent=title;r.querySelector('p').textContent=desc;const sp=r.querySelector('span');
+        const inp=document.createElement('input');inp.type='range';inp.min=0;inp.max=100;inp.step=5;inp.value=Math.round(get()*100);inp.setAttribute('aria-label',title+' 크기');
+        const show=()=>{sp.textContent=+inp.value===0?'끔':inp.value+'%';};show();
+        let tt=null;inp.oninput=()=>{set(inp.value/100);show();saveMeta();BGM.refresh();clearTimeout(tt);tt=setTimeout(test,120);};
+        r.appendChild(inp);sec.appendChild(r);};
+      row('효과음','문자 알림, 노크 소리, 도어락 같은 소리',()=>M.sfx===false?0:(M.vol!=null?M.vol:0.7),v=>{M.vol=v;M.sfx=v>0;},()=>SFX.good());
+      row('대사 효과음','대화창 글자가 찍힐 때 나는 톡톡 소리',()=>M.blip===false?0:(M.blipVol!=null?M.blipVol:0.7),v=>{M.blipVol=v;M.blip=v>0;},()=>{SFX.blip('이지환');setTimeout(()=>SFX.blip('서비원'),110);});
+      row('배경음','아침·오후·밤, 엔딩마다 바뀌는 곡',()=>M.bgm===false?0:(M.bgmVol!=null?M.bgmVol:0.5),v=>{M.bgmVol=v;M.bgm=v>0;},()=>{});
+      box.appendChild(sec);}
     const t=el('div','toggle','<div><b>하루 한 번 모드</b><p>실제 날짜로 하루에 하루씩만 진행돼요. 선물할 때 켜두면 일주일 동안 매일 노크를 보러 오게 돼요.</p></div>');
     const sw=el('button','sw');sw.type='button';sw.setAttribute('aria-pressed',M.daily);sw.textContent=M.daily?'켜짐':'꺼짐';
     sw.onclick=()=>{M.daily=!M.daily;saveMeta();renderMenu();};t.appendChild(sw);box.appendChild(t);
@@ -1764,8 +1774,8 @@ $('endMenuBtn').onclick=()=>openMenu('album');
 $('endBranchBtn').onclick=()=>openMenu('branch');
 $('letterBtn').onclick=()=>{$('creditsText').textContent=D.sys.credits.lines.map(x=>Array.isArray(line(x))?line(x)[1]:line(x)).join('\n');$('credits').hidden=false;};
 $('creditsClose').onclick=()=>{$('credits').hidden=true;};
-function syncSfx(){const any=M.sfx||M.bgm!==false;$('sfxBtn').textContent=any?'소리 켜짐':'소리 꺼짐';BGM.refresh();}
-$('sfxBtn').onclick=()=>{const any=M.sfx||M.bgm!==false;M.sfx=!any;M.bgm=!any;saveMeta();syncSfx();if(M.sfx)SFX.good();};
+function syncSfx(){$('sfxBtn').textContent=M.mute?'소리 꺼짐':'소리 켜짐';BGM.refresh();}
+$('sfxBtn').onclick=()=>{M.mute=!M.mute;saveMeta();syncSfx();if(!M.mute)SFX.good();if(mtab==='set'&&!$('menuSheet').hidden)renderMenu();};
 function dayCard(){
   const d=document.createElement('div');d.className='daycard';
   d.innerHTML='<b></b><span></span>';d.querySelector('b').textContent='DAY '+S.day;
