@@ -216,7 +216,8 @@ body.fs2 .dlg p,body.fs2 #chat,body.fs2 #choices,body.fs2 #menuBody,body.fs2 .ca
 #mgInfo{margin:0;font-size:13px;color:var(--dim);min-height:1.5em}
 .mgbtns{display:grid;gap:6px;grid-template-columns:repeat(var(--n,1),1fr)}
 .mgbtns button{background:var(--panel2);border:2px solid var(--line);box-shadow:0 3px 0 var(--ink);padding:14px 4px;font-family:var(--display);font-size:17px;touch-action:manipulation}
-.mgbtns button:active{transform:translateY(2px)}
+.mgbtns button:active,.mgbtns button.held{transform:translateY(2px);border-color:var(--snake);background:var(--panel)}
+.mgbtns button{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--panel2);border:1px solid var(--amber);
   color:var(--text);font-size:13px;padding:7px 14px;z-index:40;max-width:min(90vw,420px);text-align:center;pointer-events:none}
@@ -297,11 +298,12 @@ body.fs2 .dlg p,body.fs2 #chat,body.fs2 #choices,body.fs2 #menuBody,body.fs2 .ca
       <button type="button" data-act="water"><span>물 갈아주기</span><em>물그릇 교체</em></button>
       <button type="button" data-act="up"><span>히터 올리기</span><em>+2°C</em></button>
       <button type="button" data-act="down"><span>히터 내리기</span><em>−2°C</em></button>
-      <button type="button" data-act="mist"><span>분무하기</span><em>습도 · 신뢰 조금</em></button>
-      <button type="button" data-act="pet"><span>쓰다듬기</span><em>기분 · 신뢰</em></button>
+      <button type="button" data-act="mist"><span>분무하기</span><em>습도 · 탈피 중엔 습도 맞추기 게임</em></button>
+      <button type="button" data-act="pet"><span>쓰다듬기</span><em>기분 · 신뢰 · 하루 첫 번엔 살살 게임</em></button>
       <div class="sec">교감과 일</div>
       <button type="button" data-act="talk"><span>말 걸기</span><em>신뢰. 탈피 중에도 OK</em></button>
       <button type="button" data-act="work"><span>곡 작업</span><em>데모 진행</em></button>
+      <button type="button" data-act="photo"><span>노크 사진 찍기</span><em>하루 한 번. 셔터 타이밍 게임</em></button>
     </div>
   </div>
 </div>
@@ -398,7 +400,7 @@ const todayStr=()=>{const d=new Date();return `${d.getFullYear()}-${d.getMonth()
 function fresh(){return {day:1,slot:0,ap:2,hunger:70,temp:29,mood:60,trust:20,song:0,water:true,waterAge:0,fed:false,mist:0,shed:null,
   aff:0,careGood:0,careTotal:0,sick:0,flags:{},log:[],pending:null,msgAge:0,unread:false,answered:{},prefixed:{},gifted:{},giftDay:0,
   bag:0,room:'living',out:false,lamp:true,escaped:false,searches:0,bitten:false,inspired:false,wristSeen:false,
-  quick:0,ignored:0,evPending:null,replyQ:[],dayAnswered:{},ghostStreak:0,seen:{},explored:{},workSlots:{},msgDone:{},justWater:false,lastAct:'',poseOverride:null,score:0,refused:0,pianoBest:0,eventsDone:{},songFailed:false,ended:false,endId:null,started:false,dayDate:todayStr(),talkSeen:{},blog:[]};}
+  quick:0,ignored:0,evPending:null,replyQ:[],heldQ:[],dayAnswered:{},ghostStreak:0,seen:{},explored:{},workSlots:{},msgDone:{},justWater:false,lastAct:'',poseOverride:null,score:0,refused:0,pianoBest:0,eventsDone:{},songFailed:false,ended:false,endId:null,started:false,dayDate:todayStr(),talkSeen:{},blog:[]};}
 let S=fresh();
 try{const raw=localStorage.getItem(KEY);if(raw)S=Object.assign(fresh(),JSON.parse(raw));}catch(e){}
 /* 이전 저장 호환: 문자 대기 형식, 보내다 만 답장 */
@@ -711,6 +713,8 @@ function advance(){
   if(S.pending&&!warned){warned=true;return say(sysL('unread_warn'));}
   if(S.slot===2&&M.daily&&S.dayDate===todayStr()) return say(sysL('daily_lock'));
   warned=false;
+  if(S.heldQ&&S.heldQ.length){S.log.push(...S.heldQ);S.heldQ=[];}
+  if(S.heldDone){const id=S.heldDone;S.heldDone=null;msgDone(id);}
   if(S.pending){
     const night=S.slot===2;S.pending=null;S.aff-=1;S.ignored++;if(S.ignored>=3)achieve('ignore');
     if(S.replyQ&&S.replyQ.length){S.log.push(...S.replyQ);S.replyQ=[];}
@@ -772,8 +776,11 @@ function deliver(){
   if(!m||D.msg.some(x=>x.day===S.day&&x.slot===S.slot&&S.answered[x.id])) return false;
   S.log.push({f:'sys',t:`DAY ${S.day} · ${SLOTS[S.slot].n} ${SLOTS[S.slot].t}`});
   D.prefix.forEach(p=>{if(!S.prefixed[p.id]&&cond(p.cond)){S.prefixed[p.id]=true;p.lines.forEach(t=>S.log.push(strB(t)));}});
-  const [L,ci]=runSteps(m,0);L.forEach(l=>S.log.push(bubble(l)));
-  if(ci<0){S.answered[m.id]=true;msgDone(m.id);} else {S.pending={id:m.id,step:ci};S.msgAge=0;snapBranch(m,ci);}
+  const [L,ci]=runSteps(m,0);const B=L.map(bubble);
+  // 형 문자만 먼저 도착. 원이 답장과 그 뒤 대화는 휴대폰을 열어 읽을 때 이어진다
+  const cut=B.findIndex(b=>b.f==='me');
+  if(cut<0)B.forEach(b=>S.log.push(b));else{B.slice(0,cut).forEach(b=>S.log.push(b));S.heldQ=(S.heldQ||[]).concat(B.slice(cut));}
+  if(ci<0){S.answered[m.id]=true;if(S.heldQ&&S.heldQ.length)S.heldDone=m.id;else msgDone(m.id);} else {S.pending={id:m.id,step:ci};S.msgAge=0;snapBranch(m,ci);}
   S.unread=true;return true;
 }
 /* 문자를 끝까지 봤을 때: 앨범, 업적 */
@@ -787,7 +794,7 @@ function msgDone(id){
 /* 분기: 선택지가 나올 때마다 그 순간을 기억해 둔다 */
 function snapBranch(m,step){
   try{
-    const key=m.id+'#'+step;const snap=JSON.parse(JSON.stringify(S));snap.log=snap.log.concat(snap.replyQ||[]).slice(-40);snap.replyQ=[];
+    const key=m.id+'#'+step;const snap=JSON.parse(JSON.stringify(S));snap.log=snap.log.concat(snap.heldQ||[],snap.replyQ||[]).slice(-40);snap.replyQ=[];snap.heldQ=[];
     const lead=(m.steps.slice(0,step).filter(x=>x.type==='say'&&(x.who||'이지환')==='이지환').pop()||{}).text||'';
     M.branches[key]={day:S.day,slot:S.slot,id:m.id,step,lead:fmt(lead),opts:m.steps[step].options.map(o=>o.t),snap};
     saveMeta();
@@ -814,6 +821,9 @@ function act(a){
     if(S.fed) return say(sysL('feed_done'));
     return startFeed();
   }
+  if(a==='mist'&&shedding()) return startMist();
+  if(a==='pet'&&!shedding()&&S.trust>=25&&!(S.trust>=70&&!S.wristSeen)&&!(S.petGame||{})[S.day]) return startPet();
+  if(a==='photo'){if((S.photoDay||{})[S.day])return say(['오늘 사진은 이미 찍었다. 내일 또 찍어야지.']);return startPhoto();}
   let lines=[];
   S.lastAct=a;
   if(a==='water'){S.water=true;S.waterAge=0;S.justWater=true;lines=sysL('water');SFX.water();}
@@ -948,8 +958,139 @@ function pianoResult(score,grade){
   if(fin) L.push(...sysL('song_done'));
   save();render();say(L);
 }
+
+/* =========================================================
+   미니게임 3 — 습도 맞추기 (탈피 중 분무)
+   ========================================================= */
+function startMist(){
+  mgRun={kind:'mist',st:{h:0.3,t0:performance.now(),last:performance.now(),inBand:0,total:0,drops:[],done:false,dur:7}};
+  mgOpen('습도 맞추기','허물 벗는 중이라 습도가 중요해요. 분무기를 눌러 습도를 초록 칸 안에 7초 동안 유지하세요. 너무 많이 뿌리면 축축해져요.',[['칙칙',()=>mistTap()]]);
+}
+function mistTap(){const st=mgRun&&mgRun.st;if(!st||st.done)return;st.h=Math.min(1.05,st.h+0.085);SFX.mist();
+  for(let i=0;i<6;i++)st.drops.push({x:20+Math.random()*100,y:10+Math.random()*10,v:30+Math.random()*30,b:performance.now()});}
+function drawMist(t){
+  const st=mgRun.st;const now=performance.now();const dt=Math.min(0.05,(now-st.last)/1000);st.last=now;
+  const el2=(now-st.t0)/1000;
+  if(!st.done){st.h=Math.max(0,st.h-0.11*dt);const ok=st.h>=0.55&&st.h<=0.82;if(ok)st.inBand+=dt;st.total+=dt;}
+  G=mx;G.setTransform(1,0,0,1,0,0);
+  R(0,0,160,112,'#2d3b33');for(let i=0;i<8;i++)R(4+i*16,0,1,84,'#344538');R(0,84,140,28,'#8a6a45');
+  G.setTransform(1.6,0,0,1.6,-30,-50);drawSnake(t,70,100,{pose:'coil',dull:true,tongue:false});G.setTransform(1,0,0,1,0,0);
+  // 물방울
+  st.drops=st.drops.filter(d=>now-d.b<900);st.drops.forEach(d=>{const yy=d.y+(now-d.b)/1000*d.v*2;R(d.x,yy,1,2,'rgba(200,230,255,.85)');});
+  // 습도계
+  R(144,6,12,100,'#15121d');R(146,8+92*(1-0.82),8,92*(0.82-0.55),'#4f8f4f');
+  const hy=8+92*(1-Math.min(1,st.h));R(145,hy,10,2,st.h>0.9?'#e06a5a':'#ffffff');
+  if(st.h>0.9){G.fillStyle='rgba(120,170,220,.18)';G.fillRect(0,0,140,112);}
+  // 남은 시간
+  R(4,4,132,4,'#15121d');R(4,4,132*Math.min(1,el2/st.dur),4,'#ffb347');
+  if(!st.done&&el2>=st.dur){st.done=true;const r=st.inBand/st.total;st.r=r;
+    $('mgInfo').textContent=r>=0.75?'완벽해요! 허물이 촉촉하게 불었다.':r>=0.5?'좋아요. 이 정도면 충분해.':'습도가 들쭉날쭉했다.';
+    setTimeout(()=>{mgClose();mistResult(r);},1000);}
+}
+function mistResult(r){
+  spend();S.lastAct='mist';S.mist++;addTrust(2);
+  let L;
+  if(r>=0.5){S.mist++;S.mood=clamp(S.mood+6,0,100);addTrust(2);L=sysL('mist_shed').concat([r>=0.75?'습도계 바늘이 초록 칸 한가운데. 노크가 몸을 길게 폈다.':'습도 딱 좋다. 노크가 유리벽에 몸을 비볐다.']);SFX.good();}
+  else{S.mood=clamp(S.mood+2,0,100);L=sysL('mist_shed').concat(['조금 들쭉날쭉했지만 안 뿌린 것보단 낫겠지.']);}
+  save();render();say(L);
+}
+
+/* =========================================================
+   미니게임 4 — 살살 쓰다듬기 (하루 첫 쓰다듬기)
+   ========================================================= */
+function startPet(){
+  const st={calm:0,stress:0,hold:false,tense:false,nextT:performance.now()+1400+Math.random()*900,tenseEnd:0,t0:performance.now(),last:performance.now(),done:false};
+  mgRun={kind:'pet',st};
+  mgOpen('살살 쓰다듬기','버튼을 꾹 누르고 있으면 쓰다듬어요. 노크가 고개를 번쩍 들면(빨간 느낌표) 손을 떼세요. 하트가 다 차면 성공!',[]);
+  const b=$('mgBtns');b.style.setProperty('--n',1);const btn=document.createElement('button');btn.type='button';btn.textContent='꾹 눌러서 쓰다듬기';
+  const on=e=>{e.preventDefault();if(st.done)return;st.hold=true;btn.classList.add('held');};
+  const off=()=>{st.hold=false;btn.classList.remove('held');};
+  btn.addEventListener('pointerdown',on);['pointerup','pointerleave','pointercancel'].forEach(k=>btn.addEventListener(k,off));
+  btn.addEventListener('contextmenu',e=>e.preventDefault());b.appendChild(btn);st.btnOff=off;
+}
+function drawPet(t){
+  const st=mgRun.st;const now=performance.now();const dt=Math.min(0.05,(now-st.last)/1000);st.last=now;
+  if(!st.done){
+    if(!st.tense&&now>st.nextT){st.tense=true;st.tenseEnd=now+700+Math.random()*600;SFX.hiss&&st.hold&&SFX.hiss();}
+    if(st.tense&&now>st.tenseEnd){st.tense=false;st.nextT=now+1300+Math.random()*1500;}
+    if(st.hold){if(st.tense)st.stress+=dt*1.25;else st.calm+=dt*0.24;}
+    else st.stress=Math.max(0,st.stress-dt*0.25);
+    if(st.calm>=1){st.done=true;st.ok=true;$('mgInfo').textContent='노크가 손바닥에 턱을 얹었다.';SFX.good();}
+    else if(st.stress>=1){st.done=true;st.ok=false;$('mgInfo').textContent='쉭! 노크가 몸을 웅크렸다.';SFX.hiss();}
+    else if((now-st.t0)/1000>14){st.done=true;st.ok=st.calm>=0.6;$('mgInfo').textContent=st.ok?'거의 다 됐다. 노크도 싫지 않은 눈치.':'시간이 다 됐다.';}
+    if(st.done){st.btnOff&&st.btnOff();setTimeout(()=>{mgClose();petResult(st.ok,st.calm);},1000);}
+  }
+  G=mx;G.setTransform(1,0,0,1,0,0);
+  R(0,0,160,112,'#2d3b33');for(let i=0;i<8;i++)R(4+i*16,0,1,84,'#344538');R(0,84,160,28,'#8a6a45');
+  G.setTransform(1.7,0,0,1.7,-56,-64);
+  drawSnake(t,80,100,{pose:st.tense?'periscope':'coil',dull:false,tongue:!st.tense});
+  G.setTransform(1,0,0,1,0,0);
+  // 손 (실루엣)
+  if(st.hold&&!st.done){const hx=112+Math.sin(now/220)*9,hy=80;const c='#17141f';
+    R(hx-6,hy-4,16,9,c);R(hx+10,hy-2,22,6,c);for(let i=0;i<4;i++)R(hx-13,hy-4+i*2.4,8,2,c);R(hx-2,hy+4,6,3,c);}
+  // 긴장 표시
+  if(st.tense){R(116,10,4,10,'#e0405a');R(116,22,4,4,'#e0405a');G.fillStyle='rgba(224,64,90,.12)';G.fillRect(0,0,160,112);}
+  // 하트 게이지
+  const hp=[[1,0],[2,0],[4,0],[5,0],[0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[1,3],[2,3],[3,3],[4,3],[5,3],[2,4],[3,4],[4,4],[3,5]];
+  hp.forEach(([x,y])=>{const filled=(5-y)/5<=st.calm+0.01;R(8+x*3,8+y*3,3,3,filled?'#e0405a':'#4a3a48');});
+  R(34,10,60,4,'#15121d');R(34,10,60*Math.min(1,st.stress),4,'#c8402f');
+}
+function petResult(ok,calm){
+  spend();S.lastAct='pet';S.petGame=S.petGame||{};S.petGame[S.day]=true;
+  let L;
+  if(ok){S.mood=clamp(S.mood+12,0,100);addTrust(12);L=[sys1('pet'),'타이밍을 맞추니까 노크가 먼저 몸을 기대왔다.'];}
+  else{S.mood=clamp(S.mood+3,0,100);addTrust(3);L=['너무 오래 만졌나 보다. 노크가 쉭 소리를 냈다.','내일은 고개 들 때 손을 떼 봐야지.'];}
+  save();render();say(L);
+}
+
+/* =========================================================
+   미니게임 5 — 노크 사진 찍기
+   ========================================================= */
+function startPhoto(){
+  mgRun={kind:'photo',st:{t0:performance.now(),done:false,shot:null,pose:['periscope','stretch','coil'][Math.floor(Math.random()*3)]}};
+  mgOpen('노크 사진 찍기','카메라가 흔들려요. 노크 얼굴이 가운데 네모 안에 들어올 때 셔터를 누르세요. 혀를 내밀 때 찍으면 더 귀여워요.',[['찰칵',()=>photoShot()]]);
+}
+function photoView(t){const st=mgRun.st;const el2=(performance.now()-st.t0)/1000;
+  // 노크 얼굴이 네모 근처를 오가도록, 얼굴 위치를 기준으로 카메라가 흔들린다
+  const bx=st.rx!=null?80-st.rx:0,by=st.ry!=null?56-st.ry:0;
+  return {ox:bx+Math.sin(el2*1.6)*26+Math.sin(el2*3.3)*7,oy:by+Math.cos(el2*1.25)*10+Math.sin(el2*2.7)*3};}
+function photoShot(){const st=mgRun&&mgRun.st;if(!st||st.done)return;st.done=true;st.shot=performance.now();SFX.tap&&SFX.tap();
+  const d=Math.hypot(st.hx-80,st.hy-56);const tg=(performance.now()%1150)<160||((performance.now()%1150)>290&&(performance.now()%1150)<430);
+  const score=Math.max(0,Math.round(100-d*3.2))+(tg&&d<14?15:0);st.score=Math.min(100,score);st.tg=tg;
+  $('mgInfo').textContent=st.score>=85?'인생샷! 혀까지 나왔다.':st.score>=60?'잘 나왔다.':st.score>=30?'반쯤 잘렸다.':'흔들렸다...';
+  setTimeout(()=>{mgClose();photoResult(st.score);},1300);}
+function drawPhoto(t){
+  const st=mgRun.st;const v=st.shot?st.v:photoView(t);if(!st.shot)st.v=v;
+  const tt=st.shot?st.shot:t;
+  G=mx;G.setTransform(1,0,0,1,0,0);
+  R(0,0,160,112,'#2d3b33');
+  G.setTransform(1,0,0,1,v.ox,v.oy);
+  R(-80,-80,320,170,'#2d3b33');for(let i=-6;i<16;i++)R(4+i*16,-80,1,164,'#344538');R(-80,84,320,80,'#8a6a45');R(10,74,22,12,'#5a4a3a');R(118,78,30,8,'#6a8a9a');
+  G.setTransform(1.5,0,0,1.5,v.ox-40,v.oy-45);
+  const h=drawSnake(tt,80,100,{pose:st.pose,dull:shedding(),tongue:true})||{hx:80,hy:80};
+  G.setTransform(1,0,0,1,0,0);
+  if(!st.shot){st.rx=h.hx*1.5-40;st.ry=h.hy*1.5-45;st.hx=st.rx+v.ox;st.hy=st.ry+v.oy;}
+  // 뷰파인더
+  const c='rgba(255,255,255,.85)';
+  [[4,4],[148,4],[4,100],[148,100]].forEach(([x,y],i)=>{R(x,y,8,1,c);R(x+(i%2?7:0),y,1,8,c);R(x,y+(i<2?0:7),8,1,c);});
+  R(66,44,28,1,c);R(66,67,28,1,c);R(66,44,1,24,c);R(93,44,1,24,c);
+  if(st.shot){const a=Math.max(0,1-(performance.now()-st.shot)/350);G.fillStyle=`rgba(255,255,255,${a})`;G.fillRect(0,0,160,112);}
+}
+function photoResult(score){
+  spend();S.lastAct='photo';S.photoDay=S.photoDay||{};S.photoDay[S.day]=true;S.photoBest=Math.max(S.photoBest||0,score);
+  let L;
+  if(score>=85){S.mood=clamp(S.mood+4,0,100);addTrust(4);L=['찰칵. 혀까지 날름 나온 인생샷이다.','형한테 보내야지. (휴대폰 > 선물 > 노크 사진)'];SFX.good();}
+  else if(score>=60){addTrust(3);L=['찰칵. 꽤 잘 나왔다. 노크가 렌즈를 빤히 본다.'];}
+  else if(score>=30){addTrust(1);L=['찰칵. 얼굴이 반쯤 잘렸다. 꼬리는 잘 나왔다.'];}
+  else L=['찰칵. 전부 흔들렸다. 노크가 고개를 갸웃했다.'];
+  save();render();say(L);
+}
+document.addEventListener('keyup',e=>{if(mgRun&&mgRun.kind==='pet'&&e.key===' ')mgRun.st.hold=false;});
 document.addEventListener('keydown',e=>{
   if(!mgRun) return;
+  if(mgRun.kind==='mist'&&(e.key===' '||e.key==='Enter')){e.preventDefault();mistTap();}
+  if(mgRun.kind==='photo'&&(e.key===' '||e.key==='Enter')){e.preventDefault();photoShot();}
+  if(mgRun.kind==='pet'&&e.key===' '&&!e.repeat){e.preventDefault();mgRun.st.hold=true;}
   if(mgRun.kind==='piano'){const i='dfjk'.indexOf(e.key.toLowerCase());if(i>=0){e.preventDefault();pianoTap(i);}}
   if(mgRun.kind==='feed'&&(e.key===' '||e.key==='Enter')){e.preventDefault();feedHit();}
 });
@@ -975,14 +1116,14 @@ function renderPhone(){
   } else {const d=document.createElement('div');d.className='none';d.textContent=replying?'':'답장할 메시지가 없다';ch.appendChild(d);}
   const g=$('gifts');g.innerHTML='';
   const p=document.createElement('p');p.className='gnote';
-  p.textContent=S.giftDay===S.day?'오늘 선물은 이미 받아줬다. 내일 또 보낼 수 있다.':'형이 받아주는 선물은 하루에 하나. 돈은 얼마든지 있다.';
+  p.textContent=S.giftDay===S.day*3+S.slot?'이번엔 선물을 이미 받아줬다. 다음 시간대에 또 보낼 수 있다.':'형이 받아주는 선물은 시간대마다 하나. 돈은 얼마든지 있다.';
   g.appendChild(p);
   let lastCat=null;
   D.gifts.forEach(it=>{
     if(it.cat&&it.cat!==lastCat){lastCat=it.cat;const h=document.createElement('p');h.className='ghead';h.textContent=it.cat;g.appendChild(h);}
     const b=document.createElement('button');b.type='button';b.className='row';
     const locked=S.day<it.frm||!cond(it.req),st=S.gifted[it.id];
-    b.disabled=locked||!!st||(!it.refuse&&S.giftDay===S.day)||replying||S.ended;
+    b.disabled=locked||!!st||(!it.refuse&&S.giftDay===S.day*3+S.slot)||replying||S.ended;
     b.innerHTML='<div><b></b><em></em></div><span class="tag"></span>';b.prepend(giftPic(it.id,40));
     b.querySelector('b').textContent=it.name;
     b.querySelector('em').textContent=locked?(S.day<it.frm?`DAY ${it.frm}부터`:'아직 준비 안 됨'):`${it.price} · ${it.desc}`;
@@ -995,7 +1136,7 @@ function renderPhone(){
 function himSays(){
   replying=true;renderPhone();
   const go=()=>{
-    if(!S.replyQ||!S.replyQ.length){replying=false;S.replyQ=[];save();render();renderPhone();return;}
+    if(!S.replyQ||!S.replyQ.length){replying=false;S.replyQ=[];if(S.heldDone&&!(S.heldQ||[]).length){const id=S.heldDone;S.heldDone=null;msgDone(id);}save();render();renderPhone();return;}
     const nx=S.replyQ[0];const fast=nx&&skipOn()&&wasSeen(nx.t);
     setTimeout(()=>{const b=S.replyQ.shift();if(!b){go();return;}S.log.push(b);markSeen(b.t);if(b.f==='him'&&!fast)SFX.recv();save();renderPhone();go();},fast?70:reduce?150:(nx&&nx.f==='narr'?1100:850));
   };go();
@@ -1019,7 +1160,7 @@ function answer(c){
 function sendGift(it){
   S.gifted[it.id]=it.refuse?'no':'yes';S.aff+=it.aff;
   if(it.refuse){S.refused++;if(S.refused>=7)achieve('refuse');SFX.refuse();}
-  else {S.giftDay=S.day;SFX.gift();}
+  else {S.giftDay=S.day*3+S.slot;SFX.gift();}
   M.giftSeen[it.id]=it.refuse?'no':'yes';saveMeta();
   if(D.gifts.filter(x=>!x.refuse).every(x=>S.gifted[x.id]==='yes')) achieve('gifter');
   if(S.aff>=100) achieve('lover');
@@ -1028,7 +1169,9 @@ function sendGift(it){
   if(it.id==='piano'&&S.flags['피아노S']) unlockAlbum('piano');
   S.replyQ=(alt?alt.lines:it.rep).map(strB);save();himSays();
 }
-function openPhone(){S.unread=false;save();$('phoneSheet').hidden=false;render();renderPhone();}
+function openPhone(){S.unread=false;$('phoneSheet').hidden=false;
+  if(S.heldQ&&S.heldQ.length&&!replying){S.replyQ=S.heldQ.concat(S.replyQ||[]);S.heldQ=[];save();render();himSays();return;}
+  save();render();renderPhone();}
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;renderPhone();});
 
 /* =========================================================
@@ -1667,7 +1810,7 @@ function scene(t){
 let last=0;
 function loop(t){
   if(t-last>60){
-    if(mgRun){if(mgRun.kind==='feed')drawFeed(t);else drawPiano(t);}
+    if(mgRun){const k=mgRun.kind;if(k==='feed')drawFeed(t);else if(k==='mist')drawMist(t);else if(k==='pet')drawPet(t);else if(k==='photo')drawPhoto(t);else drawPiano(t);}
     if(!$('title').hidden) drawTitle(t);
     scene(t);last=t;
   }
