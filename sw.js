@@ -12,6 +12,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== location.origin) return;   // 깃허브 API는 그대로 통과
+  if (url.pathname.includes('/knock7/')) return;   // 노크 게임은 일기 앱 캐시와 섞이지 않게 그대로 통과
   // 페이지는 새 버전을 먼저 받고, 안 되면 저장해 둔 것
   if (e.request.mode === 'navigate' || url.pathname.endsWith('/config.js')) {
     e.respondWith(fetch(e.request).then(r => { const c = r.clone(); const key = e.request.mode === 'navigate' ? './index.html' : e.request; caches.open(CACHE).then(x => x.put(key, c)); return r; })
