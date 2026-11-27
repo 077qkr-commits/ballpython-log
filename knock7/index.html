@@ -178,10 +178,13 @@ body.fs2 .dlg p,body.fs2 #chat,body.fs2 #choices,body.fs2 #menuBody,body.fs2 .ca
 .row>div{flex:1;min-width:0}
 .vols{display:flex;flex-direction:column;gap:6px}
 .vrow{background:var(--panel2);border:1px solid var(--line);padding:10px 12px}
-.vrow .vh{display:flex;justify-content:space-between;align-items:baseline}
+.vrow .vh{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.vrow .vline{display:flex;align-items:center;gap:10px;margin-top:4px}
+.vrow .vline input{flex:1}
+.vrow.off .vline{opacity:.35}
 .vrow b{font-weight:400;font-family:var(--display);font-size:16px}
-.vrow span{font-size:13px;color:var(--amber);font-variant-numeric:tabular-nums}
-.vrow p{margin:2px 0 6px;font-size:12px;color:var(--dim)}
+.vrow .vline span{font-size:13px;color:var(--amber);font-variant-numeric:tabular-nums;min-width:38px;text-align:right}
+.vrow p{margin:2px 0 0;font-size:12px;color:var(--dim)}
 .vrow input[type=range]{width:100%;accent-color:var(--snake);height:28px;margin:0}
 .rbadge{width:44px;height:44px;flex:none;image-rendering:pixelated;border-radius:50%}
 .item>div{flex:1;min-width:0}
@@ -474,7 +477,7 @@ function done(){typing=false;markSeen(full);if(!queue.length&&opts){showOpts();r
 function dlgBusy(){return ['careSheet','phoneSheet','menuSheet','mg','title'].some(id=>$(id)&&!$(id).hidden);}
 function type(t){
   full=t;clearInterval(timer);
-  if(reduce||(skipOn()&&wasSeen(t))){$('dlgText').textContent=t;done();return;}
+  if(reduce||(skipOn()&&wasSeen(t))){$('dlgText').textContent=t;if(t)SFX.blip($('dlgName').hidden?'':$('dlgName').textContent);done();return;}
   let n=0;typing=true;$('dlgMore').hidden=true;
   const who=$('dlgName').hidden?'':$('dlgName').textContent;let lastB=0;
   timer=setInterval(()=>{n++;$('dlgText').textContent=full.slice(0,n);
@@ -1151,15 +1154,20 @@ function renderMenu(){
     spb.onclick=()=>{M.speed=(M.speed+1)%3;saveMeta();renderMenu();};sp.appendChild(spb);box.appendChild(sp);
     {const sec=el('div','vols');
       if(M.mute){const mn=el('p','gnote','지금 소리가 꺼져 있어요. 화면 위 [소리 꺼짐]을 누르면 다시 켜져요.');sec.appendChild(mn);}
-      const row=(title,desc,get,set,test)=>{const r=el('div','vrow','<div class="vh"><b></b><span></span></div><p></p>');
-        r.querySelector('b').textContent=title;r.querySelector('p').textContent=desc;const sp=r.querySelector('span');
-        const inp=document.createElement('input');inp.type='range';inp.min=0;inp.max=100;inp.step=5;inp.value=Math.round(get()*100);inp.setAttribute('aria-label',title+' 크기');
-        const show=()=>{sp.textContent=+inp.value===0?'끔':inp.value+'%';};show();
-        let tt=null;inp.oninput=()=>{set(inp.value/100);show();saveMeta();BGM.refresh();clearTimeout(tt);tt=setTimeout(test,120);};
-        r.appendChild(inp);sec.appendChild(r);};
-      row('효과음','문자 알림, 노크 소리, 도어락 같은 소리',()=>M.sfx===false?0:(M.vol!=null?M.vol:0.7),v=>{M.vol=v;M.sfx=v>0;},()=>SFX.good());
-      row('대사 효과음','대화창 글자가 찍힐 때 나는 톡톡 소리',()=>M.blip===false?0:(M.blipVol!=null?M.blipVol:0.7),v=>{M.blipVol=v;M.blip=v>0;},()=>{SFX.blip('이지환');setTimeout(()=>SFX.blip('서비원'),110);});
-      row('배경음','아침·오후·밤, 엔딩마다 바뀌는 곡',()=>M.bgm===false?0:(M.bgmVol!=null?M.bgmVol:0.5),v=>{M.bgmVol=v;M.bgm=v>0;},()=>{});
+      const row=(title,desc,flag,vkey,def,test)=>{const r=el('div','vrow','<div class="vh"><div><b></b><p></p></div></div>');
+        r.querySelector('b').textContent=title;r.querySelector('p').textContent=desc;
+        const on=()=>M[flag]!==false;
+        const sw=el('button','sw');sw.type='button';const paint=()=>{sw.textContent=on()?'켜짐':'꺼짐';sw.setAttribute('aria-pressed',on());r.classList.toggle('off',!on());};
+        sw.onclick=e=>{e.stopPropagation();M[flag]=!on();if(on()&&!(M[vkey]>0))M[vkey]=def;saveMeta();paint();inp.value=Math.round((M[vkey]!=null?M[vkey]:def)*100);show();BGM.refresh();if(on())setTimeout(test,60);};
+        r.querySelector('.vh').appendChild(sw);
+        const line=el('div','vline');const inp=document.createElement('input');inp.type='range';inp.min=0;inp.max=100;inp.step=5;
+        inp.value=Math.round((M[vkey]!=null?M[vkey]:def)*100);inp.setAttribute('aria-label',title+' 크기');const sp=el('span');
+        const show=()=>{sp.textContent=inp.value+'%';};show();paint();
+        let tt=null;inp.oninput=()=>{M[vkey]=inp.value/100;M[flag]=M[vkey]>0;paint();show();saveMeta();BGM.refresh();clearTimeout(tt);tt=setTimeout(test,120);};
+        line.append(inp,sp);r.appendChild(line);sec.appendChild(r);};
+      row('효과음','문자 알림, 노크 소리, 도어락 같은 소리','sfx','vol',0.7,()=>SFX.good());
+      row('대사 효과음','대화창 글자가 찍힐 때 나는 톡톡 소리','blip','blipVol',0.7,()=>{SFX.blip('이지환');setTimeout(()=>SFX.blip('서비원'),110);});
+      row('배경음','아침·오후·밤, 엔딩마다 바뀌는 곡','bgm','bgmVol',0.5,()=>{});
       box.appendChild(sec);}
     const t=el('div','toggle','<div><b>하루 한 번 모드</b><p>실제 날짜로 하루에 하루씩만 진행돼요. 선물할 때 켜두면 일주일 동안 매일 노크를 보러 오게 돼요.</p></div>');
     const sw=el('button','sw');sw.type='button';sw.setAttribute('aria-pressed',M.daily);sw.textContent=M.daily?'켜짐':'꺼짐';
