@@ -186,6 +186,16 @@ body.fs2 .dlg p,body.fs2 #chat,body.fs2 #choices,body.fs2 #menuBody,body.fs2 .ca
 .vrow .vline span{font-size:13px;color:var(--amber);font-variant-numeric:tabular-nums;min-width:38px;text-align:right}
 .vrow p{margin:2px 0 0;font-size:12px;color:var(--dim)}
 .vrow input[type=range]{width:100%;accent-color:var(--snake);height:28px;margin:0}
+.tut{position:fixed;inset:0;z-index:60}
+.tut .tutHole{position:fixed;border:2px solid var(--amber);box-shadow:0 0 0 9999px rgba(8,6,14,.72);transition:all .25s ease;pointer-events:none}
+.tut .tutHole.none{width:0;height:0;left:50%;top:50%;border:0}
+.tut .tutBox{position:fixed;left:12px;right:12px;max-width:420px;margin:0 auto;background:var(--panel);border:2px solid var(--snake);padding:14px 16px 12px;box-shadow:0 4px 0 var(--ink)}
+.tut .tutBox p{margin:0 0 12px;font-size:15px;line-height:1.6;text-wrap:pretty}
+.tut .tutNav{display:flex;align-items:center;gap:8px}
+.tut .tutNav span{flex:1;font-size:12px;color:var(--dim)}
+.tut .tutNav button{background:var(--panel2);border:1px solid var(--line);padding:7px 14px;font-size:14px}
+.tut .tutNav #tutNext{border-color:var(--snake)}
+@media (prefers-reduced-motion:reduce){.tut .tutHole{transition:none}}
 .rbadge{width:44px;height:44px;flex:none;image-rendering:pixelated;border-radius:50%}
 .item>div{flex:1;min-width:0}
 .acard canvas{image-rendering:pixelated}
@@ -296,9 +306,9 @@ body.fs2 .dlg p,body.fs2 #chat,body.fs2 #choices,body.fs2 #menuBody,body.fs2 .ca
       <div class="sec">노크 돌보기</div>
       <button type="button" data-act="feed"><span>먹이 주기</span><em>4일차. 타이밍 게임</em></button>
       <button type="button" data-act="water"><span>물 갈아주기</span><em>물그릇 교체</em></button>
-      <button type="button" data-act="up"><span>히터 올리기</span><em>+2°C</em></button>
+      <button type="button" data-act="up"><span>히터 올리기</span><em>+3°C</em></button>
       <button type="button" data-act="down"><span>히터 내리기</span><em>−2°C</em></button>
-      <button type="button" data-act="mist"><span>분무하기</span><em>습도 · 탈피 중엔 습도 맞추기 게임</em></button>
+      <button type="button" data-act="mist"><span>분무하기</span><em>습도 맞추기 게임 · 탈피 중엔 필수</em></button>
       <button type="button" data-act="pet"><span>쓰다듬기</span><em>기분 · 신뢰 · 하루 첫 번엔 살살 게임</em></button>
       <div class="sec">교감과 일</div>
       <button type="button" data-act="talk"><span>말 걸기</span><em>신뢰. 탈피 중에도 OK</em></button>
@@ -348,6 +358,14 @@ body.fs2 .dlg p,body.fs2 #chat,body.fs2 #choices,body.fs2 #menuBody,body.fs2 .ca
 </div>
 
 <div class="toast" id="toast" hidden></div>
+
+<div class="tut" id="tut" hidden>
+  <div class="tutHole" id="tutHole"></div>
+  <div class="tutBox" id="tutBox" role="dialog" aria-live="polite">
+    <p id="tutText"></p>
+    <div class="tutNav"><span id="tutStep"></span><button type="button" id="tutSkip">건너뛰기</button><button type="button" id="tutNext">다음</button></div>
+  </div>
+</div>
 
 <div class="over" id="title" hidden>
   <h1>노크와 함께 한 7일</h1>
@@ -821,7 +839,7 @@ function act(a){
     if(S.fed) return say(sysL('feed_done'));
     return startFeed();
   }
-  if(a==='mist'&&shedding()) return startMist();
+  if(a==='mist') return startMist();
   if(a==='pet'&&!shedding()&&S.trust>=25&&!(S.trust>=70&&!S.wristSeen)&&!(S.petGame||{})[S.day]) return startPet();
   if(a==='photo'){if((S.photoDay||{})[S.day])return say(['오늘 사진은 이미 찍었다. 내일 또 찍어야지.']);return startPhoto();}
   let lines=[];
@@ -829,7 +847,7 @@ function act(a){
   if(a==='water'){S.water=true;S.waterAge=0;S.justWater=true;lines=sysL('water');SFX.water();}
   if(a==='up'||a==='down'){
     if(!S.lamp) return say(sysL('heat_dead'));
-    S.temp=clamp(S.temp+(a==='up'?2:-2),16,38);
+    S.temp=clamp(S.temp+(a==='up'?3:-2),16,38);
     lines=sysL(a==='up'?'heat_up':'heat_down');
   }
   if(a==='mist'){
@@ -963,8 +981,9 @@ function pianoResult(score,grade){
    미니게임 3 — 습도 맞추기 (탈피 중 분무)
    ========================================================= */
 function startMist(){
-  mgRun={kind:'mist',st:{h:0.3,t0:performance.now(),last:performance.now(),inBand:0,total:0,drops:[],done:false,dur:7}};
-  mgOpen('습도 맞추기','허물 벗는 중이라 습도가 중요해요. 분무기를 눌러 습도를 초록 칸 안에 7초 동안 유지하세요. 너무 많이 뿌리면 축축해져요.',[['칙칙',()=>mistTap()]]);
+  const sh=shedding();
+  mgRun={kind:'mist',st:{sh,h:0.3,t0:performance.now(),last:performance.now(),inBand:0,total:0,drops:[],done:false,dur:7}};
+  mgOpen('습도 맞추기',(sh?'허물 벗는 중이라 습도가 아주 중요해요. ':'')+'[칙칙]을 눌러 습도계 바늘을 초록 칸 안에 7초 동안 유지하세요. 한 번에 너무 많이 뿌리면 축축해져요.',[['칙칙',()=>mistTap()]]);
 }
 function mistTap(){const st=mgRun&&mgRun.st;if(!st||st.done)return;st.h=Math.min(1.05,st.h+0.085);SFX.mist();
   for(let i=0;i<6;i++)st.drops.push({x:20+Math.random()*100,y:10+Math.random()*10,v:30+Math.random()*30,b:performance.now()});}
@@ -974,7 +993,7 @@ function drawMist(t){
   if(!st.done){st.h=Math.max(0,st.h-0.11*dt);const ok=st.h>=0.55&&st.h<=0.82;if(ok)st.inBand+=dt;st.total+=dt;}
   G=mx;G.setTransform(1,0,0,1,0,0);
   R(0,0,160,112,'#2d3b33');for(let i=0;i<8;i++)R(4+i*16,0,1,84,'#344538');R(0,84,140,28,'#8a6a45');
-  G.setTransform(1.6,0,0,1.6,-30,-50);drawSnake(t,70,100,{pose:'coil',dull:true,tongue:false});G.setTransform(1,0,0,1,0,0);
+  G.setTransform(1.6,0,0,1.6,-30,-50);drawSnake(t,70,100,{pose:'coil',dull:st.sh,tongue:!st.sh});G.setTransform(1,0,0,1,0,0);
   // 물방울
   st.drops=st.drops.filter(d=>now-d.b<900);st.drops.forEach(d=>{const yy=d.y+(now-d.b)/1000*d.v*2;R(d.x,yy,1,2,'rgba(200,230,255,.85)');});
   // 습도계
@@ -985,10 +1004,14 @@ function drawMist(t){
   R(4,4,132,4,'#15121d');R(4,4,132*Math.min(1,el2/st.dur),4,'#ffb347');
   if(!st.done&&el2>=st.dur){st.done=true;const r=st.inBand/st.total;st.r=r;
     $('mgInfo').textContent=r>=0.75?'완벽해요! 허물이 촉촉하게 불었다.':r>=0.5?'좋아요. 이 정도면 충분해.':'습도가 들쭉날쭉했다.';
-    setTimeout(()=>{mgClose();mistResult(r);},1000);}
+    setTimeout(()=>{mgClose();mistResult(r,st.sh);},1000);}
 }
-function mistResult(r){
-  spend();S.lastAct='mist';S.mist++;addTrust(2);
+function mistResult(r,sh){
+  spend();S.lastAct='mist';
+  if(!sh){let L;if(r>=0.5){S.mood=clamp(S.mood+5,0,100);addTrust(3);L=sysL('mist').concat([r>=0.75?'딱 좋은 습도. 노크가 물방울을 혀로 콕 찍었다.':'적당히 촉촉하다. 노크가 유리벽을 따라 천천히 움직였다.']);SFX.good();}
+    else{S.mood=clamp(S.mood+2,0,100);addTrust(1);L=sysL('mist').concat(['너무 많이 뿌렸나. 바닥재가 좀 축축하다.']);}
+    save();render();say(L);return;}
+  S.mist++;addTrust(2);
   let L;
   if(r>=0.5){S.mist++;S.mood=clamp(S.mood+6,0,100);addTrust(2);L=sysL('mist_shed').concat([r>=0.75?'습도계 바늘이 초록 칸 한가운데. 노크가 몸을 길게 폈다.':'습도 딱 좋다. 노크가 유리벽에 몸을 비볐다.']);SFX.good();}
   else{S.mood=clamp(S.mood+2,0,100);L=sysL('mist_shed').concat(['조금 들쭉날쭉했지만 안 뿌린 것보단 낫겠지.']);}
@@ -1287,6 +1310,8 @@ function renderMenu(){
     if(!mono.children.length)mono.appendChild(el('small',null,'기록 없음'));box.appendChild(mono);
   }
   if(mtab==='set'){
+    {const tt=el('div','toggle','<div><b>튜토리얼 다시 보기</b><p>화면 구성과 하는 법을 처음처럼 하나씩 짚어줘요.</p></div>');
+      const tb=el('button','sw');tb.type='button';tb.textContent='보기';tb.onclick=()=>{closeSheets();$('title').hidden=true;setTimeout(tutStart,200);};tt.appendChild(tb);box.appendChild(tt);}
     const tg=(title,desc,label,fn)=>{const t=el('div','toggle','<div><b></b><p></p></div>');t.querySelector('b').textContent=title;t.querySelector('p').textContent=desc;
       const b=el('button','sw');b.type='button';b.textContent=label;b.onclick=()=>{fn();saveMeta();render();renderMenu();};t.appendChild(b);box.appendChild(t);};
     tg('읽은 대사 빨리 넘기기','한 번 본 문자와 혼잣말은 바로 떠요. 대화창을 누르면 본 대사를 한 번에 건너뛰어요.',skipOn()?'켜짐':'꺼짐',()=>{M.skipSeen=!skipOn();});
@@ -1943,7 +1968,37 @@ $('tContinue').onclick=()=>{$('title').hidden=true;BGM.set(bgmMode());if(S.evPen
 let tArm=false;
 $('tNew').onclick=()=>{
   if(S.started&&!S.ended&&!tArm){tArm=true;$('tNew').textContent='진행 중인 게임이 지워져요. 시작할까요?';setTimeout(()=>{tArm=false;$('tNew').textContent='처음부터';},3000);return;}
-  tArm=false;$('tNew').textContent='처음부터';$('title').hidden=true;restart();};
+  tArm=false;$('tNew').textContent='처음부터';$('title').hidden=true;restart();if(!M.tutDone)setTimeout(tutStart,350);};
+
+/* ---------- 튜토리얼: 화면 요소를 하나씩 짚어준다 ---------- */
+const TUT=[
+  [null,'형이 일본으로 7일 출장을 갔어. 그동안 형의 볼파이톤 노크를 우리 집에서 돌봐야 해.'],
+  ['.stats','노크 상태야. 온도는 27~31°C, 물그릇은 깨끗하게. 배부름과 기분, 노크가 나를 믿는 정도(신뢰)도 여기서 봐.'],
+  ['.stage','방 안 사물을 누르면 원이가 한마디 해. 주황 점이 깜빡이면 오늘 새로 할 말이 있다는 뜻이야. 아래쪽엔 노크 상태 알림도 떠.'],
+  ['#rooms','거실, 작업실, 서재, 베란다를 오갈 수 있어. 방마다 살펴볼 게 달라.'],
+  ['#careBtn','행동은 시간대마다 2번. 히터·물·분무 같은 돌보기, 곡 작업, 사진 찍기 같은 미니게임이 여기 있어.'],
+  ['#phoneBtn','형 문자가 오면 빨간 표시가 떠. 열어서 답장해줘. 행동하기 전에 바로 답하면 빠른 답장으로 형 기분이 올라가.'],
+  ['#nextBtn','할 일을 마치면 시간 보내기. 아침, 오후, 밤 순서로 7일이 흘러가고, 7일째에 형이 돌아와.'],
+  ['.qrow','갈림길 전에 빠른 저장을 눌러두면 편해. 형 귀국까지 남은 날도 여기 보여.'],
+  ['#menuBtn','저장, 앨범, 엔딩, 설정은 메뉴에. 튜토리얼은 설정에서 다시 볼 수 있어. 그럼, 노크 잘 부탁해!']
+];
+let tutI=-1;
+function tutShow(){
+  const [sel,txt]=TUT[tutI];const hole=$('tutHole'),box=$('tutBox');
+  $('tutText').textContent=txt;$('tutStep').textContent=(tutI+1)+' / '+TUT.length;$('tutNext').textContent=tutI===TUT.length-1?'시작하기':'다음';
+  const tg=sel&&document.querySelector(sel);
+  if(!tg){hole.className='tutHole none';box.style.top='50%';box.style.bottom='';box.style.transform='translateY(-50%)';return;}
+  hole.className='tutHole';const r=tg.getBoundingClientRect(),p=4;
+  Object.assign(hole.style,{left:(r.left-p)+'px',top:(r.top-p)+'px',width:(r.width+p*2)+'px',height:(r.height+p*2)+'px'});
+  box.style.transform='';
+  const below=innerHeight-r.bottom,above=r.top;
+  if(below>=above){box.style.top=(r.bottom+p+10)+'px';box.style.bottom='';}else{box.style.bottom=(innerHeight-r.top+p+10)+'px';box.style.top='';}
+}
+function tutStart(){tutI=0;$('tut').hidden=false;tutShow();}
+function tutEnd(){$('tut').hidden=true;tutI=-1;M.tutDone=true;saveMeta();}
+$('tutNext').onclick=e=>{e.stopPropagation();if(tutI>=TUT.length-1)return tutEnd();tutI++;tutShow();};
+$('tutSkip').onclick=e=>{e.stopPropagation();tutEnd();};
+addEventListener('resize',()=>{if(tutI>=0)requestAnimationFrame(tutShow);});
 $('tCollect').onclick=()=>openMenu('album');
 $('nextBtn').onclick=advance;
 let armed=false;
